@@ -125,6 +125,7 @@ Assets/
 | 증상 | 원인 | 해결 |
 |---|---|---|
 | Voice 패키지 임포트 후 컴파일 에러 (Unity 6) | Voice 2 옛 버전이라 Unity 6 API 비호환 | Photon Voice 2.55+ (Unity 6 호환판) 사용 |
+| **`PhotonRealtime/Code/` 에 .asmdef 중복** (Quantum 임포트 직후) | Voice 2 와 Quantum 3 가 같은 폴더에 각자 다른 이름 `.asmdef` 추가 | `PhotonRealtime.asmdef` + `.meta` 삭제, `Photon.Realtime.asmdef` 유지 |
 | Voice 패키지 임포트 후 TMP 관련 에러 | TextMeshPro Essential 미임포트 | `Window > TextMeshPro > Import TMP Essential Resources` |
 | Animation Rigging Constraint 가 동작 안 함 | 캐릭터 GameObject 에 `Rig Builder` 누락 | Rig Builder 컴포넌트 추가 후 Rig 등록 |
 | 마이크 인식 안 됨 | Windows 권한 차단 | `설정 > 개인 정보 > 마이크 > Unity 허용` |
