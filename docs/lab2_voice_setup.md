@@ -1,82 +1,79 @@
-# 실습 L2 — PlayerCharacter 가져오기 + Photon Voice 2 셋업
+# 실습 L2 — Stylized Astronaut 캐릭터 + Photon Voice SDK 셋업
 
-> L1 에서 만든 빈 프로젝트에 **기본 과정 챕터 05 의 PlayerCharacter** 를 가져오고, **Voice 전용 AppId** 를 발급해 연결한 뒤, **A 청각 검증 (DebugEcho) + B 시각 검증 (Volume Meter)** 으로 마이크가 제대로 작동하는지 확인한다.
+> L1 에서 만든 빈 프로젝트에 **Stylized Astronaut (Asset Store, 무료)** 캐릭터를 가져오고, **Voice 전용 AppId** 를 발급해 연결한 뒤, **A 청각 검증 (DebugEcho) + B 시각 검증 (Volume Meter)** 으로 마이크가 제대로 작동하는지 확인한다.
 >
-> ⏱️ 예상 시간: 60분 · 📸 슬롯: L2_01 ~ L2_15
-> 📁 산출물: PlayerCharacter 가 씬에 존재 + Voice 연결 + 마이크 검증 도구 동작
+> ⏱️ 예상 시간: 60분 · 📸 슬롯: L2_01 ~ L2_16
+> 📁 산출물: Astronaut 가 씬에 존재 + Voice 연결 + 마이크 검증 도구 동작
 
 ---
 
 ## 학습 목표
 
-1. 기본 과정 챕터 05 의 **PlayerCharacter prefab** 을 새 프로젝트에 가져온다 (`.unitypackage` 방식)
-2. Photon 대시보드에서 **Voice 전용 AppId** 를 발급하고 게임용 AppId 와 구분해 관리한다
-3. **VoiceConnection · Recorder · Speaker** 의 역할을 구분해 설명할 수 있다
-4. **DebugEchoMode** 로 자기 음성을 청각 검증한다 (방법 A)
-5. **Volume Meter UI** 로 마이크 음량을 시각 검증한다 (방법 B)
+1. Unity Asset Store 에서 **Stylized Astronaut** (Humanoid rig) 를 다운로드·임포트한다
+2. FBX Rig 를 **Humanoid** 로 설정해 후속 IK·시선·풀바디 학습에 대비한다
+3. Photon 대시보드에서 **Voice 전용 AppId** 를 발급하고 Quantum AppId 와 구분해 관리한다
+4. **VoiceConnection · Recorder · Speaker** 의 역할을 구분해 설명할 수 있다
+5. **DebugEchoMode** 로 자기 음성을 청각 검증한다 (방법 A)
+6. **Volume Meter UI** 로 마이크 음량을 시각 검증한다 (방법 B)
 
 ## 사전 확인
 
-- [ ] L1 체크리스트 6개 모두 통과 (Unity 6.3 LTS · URP 프로젝트 · 패키지 4종 · 베이스 씬)
-- [ ] 기본 과정 챕터 05 결과물 프로젝트 보유 (또는 강사 제공 `base_project.zip`)
+- [ ] L1 체크리스트 8개 모두 통과 (Unity 6.3 LTS · URP 프로젝트 · 패키지 · 베이스 씬)
 - [ ] Photon 계정 로그인 가능
+- [ ] 마이크 (헤드셋·내장 모두 가능) 작동
 
 ---
 
-## Step 1 — PlayerCharacter `.unitypackage` 익스포트
+## Step 1 — Stylized Astronaut 다운로드
 
-> 챕터 05 프로젝트가 그대로 있는 학생용. 만약 챕터 05 결과물이 없으면 Step 1-Alt 의 강사 제공 zip 사용.
+> Asset Store ID 114298 / Publisher: PULSAR BYTES / 무료 / 871KB / URP 호환
 
-### 1-1. 챕터 05 프로젝트 열기
+### 1-1. Asset Store 페이지 접속
 
-Unity Hub 에서 챕터 05 프로젝트 (Quantum 3 충돌 처리까지 완료) 열기.
+브라우저로 [Stylized Astronaut](https://assetstore.unity.com/packages/3d/characters/humanoids/sci-fi/stylized-astronaut-114298) 접속 → 로그인 → `Add to My Assets`.
 
-### 1-2. PlayerCharacter 관련 에셋 선택
+📸 **L2_01.png** — Asset Store 의 Stylized Astronaut 페이지 + Add to My Assets 클릭
 
-Project 창에서 다음을 `Ctrl+클릭` 으로 모두 선택:
-- `Assets/QuantumUser/View/PlayerCharacter.prefab`
-- `Assets/QuantumUser/View/PlayerCharacter EntityPrototype.asset`
-- `Assets/QuantumUser/Simulation/Movement/` 폴더 (MovementSystem, Input.qtn 등)
+### 1-2. Unity 에서 Download · Import
 
-📸 **L2_01.png** — 챕터 05 Project 창에서 선택된 에셋들
+Unity 의 `Window > Package Manager > My Assets` 에서 `Stylized Astronaut` 찾기 → `Download` → `Import`.
 
-### 1-3. Export Package
+Import 다이얼로그는 전체 체크 상태로 `Import` (FBX·텍스처·머티리얼 모두 필요).
 
-선택된 상태에서 우클릭 → `Export Package` → **Include Dependencies** 체크 → `Export...` → 바탕화면에 `PlayerCharacter_FromCh05.unitypackage` 저장.
+📸 **L2_02.png** — Import 다이얼로그 (전체 체크된 상태)
 
-📸 **L2_02.png** — Export Package 다이얼로그 (체크된 항목 + 파일명)
+### 1-3. 임포트 결과 확인
 
-### 1-1-Alt. 강사 제공 zip 사용하는 경우
+`Assets/Stylized Astronaut/` 폴더 생성 확인. 안에 FBX (`Character.fbx` 또는 유사한 이름) + 텍스처 + 머티리얼.
 
-`base_project.zip` 풀면 `PlayerCharacter_Base.unitypackage` 파일이 있다. 이걸 사용.
+📸 **L2_03.png** — Project 창의 Stylized Astronaut 폴더 트리
 
 ---
 
-## Step 2 — 새 프로젝트에 임포트
+## Step 2 — Rig 설정 + 씬 배치
 
-### 2-1. L1 의 새 프로젝트 열기
+### 2-1. FBX Rig 를 Humanoid 로 변경
 
-Unity Hub > L1 에서 만든 `Ch17_AdvanceCourse` 프로젝트 열기.
+Project 창에서 Astronaut FBX 선택 → Inspector 의 `Rig` 탭 → **Animation Type: Humanoid** → `Apply`.
 
-### 2-2. Package 임포트
+> 💡 **왜 Humanoid 인가?**
+> L8 (IK · 시선) 에서 `Animation Rigging` 의 MultiAimConstraint 와 Foot IK 를 쓰려면 Humanoid Avatar 가 필요하다. 기본값 Generic 으로 두면 후속 단계가 막힌다.
 
-`Assets > Import Package > Custom Package` → 위에서 만든 `.unitypackage` 선택.
-다이얼로그에서 전체 체크 → `Import`.
+📸 **L2_04.png** — FBX Inspector 의 Rig 탭이 Humanoid 로 설정된 모습
 
-📸 **L2_03.png** — Custom Package 임포트 다이얼로그
+### 2-2. 씬에 배치 (PlayerCharacter 프리팹화)
 
-### 2-3. 임포트 결과 확인
+1. Astronaut FBX 를 `Hierarchy` 의 `PlayerSpawnPoint` 위로 드래그 → 자식으로 들어감
+2. 자식 GameObject 의 이름을 **`PlayerCharacter`** 로 변경
+3. Position 을 `(0, 0, 0)` (SpawnPoint 기준 로컬)
+4. **PlayerCharacter 를 SpawnPoint 의 자식에서 분리** → 씬의 최상위로 이동
+5. PlayerCharacter 를 `Assets/3.Prefabs/PlayerCharacter.prefab` 으로 드래그 → 프리팹화
 
-Project 창에 PlayerCharacter prefab 이 보이는지 확인.
+📸 **L2_05.png** — 씬에 Astronaut 가 PlayerCharacter 이름으로 배치된 상태
 
-📸 **L2_04.png** — Project 창의 PlayerCharacter prefab
+### 2-3. 씬 카메라로 외형 확인
 
-### 2-4. 씬에 배치
-
-`Hierarchy` 의 `PlayerSpawnPoint` 위치에 PlayerCharacter prefab 끌어다 놓기.
-Position 을 `(0, 1, 0)` 으로 (지면 약간 위) 설정.
-
-📸 **L2_05.png** — 씬에 PlayerCharacter 가 배치된 상태
+Game 뷰에서 우주인이 보이는지 확인. 너무 멀거나 가까우면 Step 1 의 Main Camera Position 조정.
 
 ---
 
@@ -133,7 +130,7 @@ Position 을 `(0, 1, 0)` 으로 (지면 약간 위) 설정.
 
 ### 4-2. 새 앱 만들기 — Voice 선택
 
-`CREATE A NEW APP` 클릭 → **Photon Type: `Voice`** (⚠️ Realtime·Quantum 과 헷갈리지 말 것) → 이름: `Elice_심화_Voice` → `CREATE`.
+`CREATE A NEW APP` 클릭 → **Photon Type: `Voice`** (⚠️ Realtime · Quantum 과 헷갈리지 말 것) → 이름: `Ch17_AdvanceCourse_Voice` → `CREATE`.
 
 📸 **L2_07.png** — Voice 선택된 생성 폼
 
@@ -155,7 +152,7 @@ Project 창 검색: `t:PhotonAppSettings`. 또는 `Assets/Photon/PhotonVoice/Res
 
 Inspector 의 **App Id Voice** 필드에 AppId 붙여넣기.
 
-> ⚠️ App Id Quantum 과는 **다른 필드** 다. Quantum 은 챕터 04 에서 입력한 값이 있을 것 — 건드리지 말 것.
+> ⚠️ App Id Quantum 과는 **다른 필드** 다. Quantum 은 L1 에서 입력한 값이 있을 것 — 건드리지 말 것.
 
 📸 **L2_09.png** — AppIdVoice 입력 완료된 PhotonAppSettings Inspector
 
@@ -175,19 +172,19 @@ Inspector 의 **App Id Voice** 필드에 AppId 붙여넣기.
 
 `VoiceManager` 에 `PhotonVoiceNetwork` 컴포넌트 추가.
 
-📸 **L2_10.png** — VoiceManager + PhotonVoiceNetwork Inspector
-
 ### 6-3. Auto Connect 설정
 
-`Connect on Start` 체크.
+Inspector 에서 `Connect on Start` 체크.
+
+📸 **L2_10.png** — VoiceManager + PhotonVoiceNetwork Inspector
 
 ---
 
 ## Step 7 — 마이크 인식 테스트
 
-### 6-1. 임시 검증 스크립트
+### 7-1. 임시 검증 스크립트
 
-`Assets/Scripts/Voice/MicTester.cs`:
+`Assets/2.Scripts/1.Voice/MicTester.cs`:
 
 ```csharp
 using UnityEngine;
@@ -207,9 +204,11 @@ public class MicTester : MonoBehaviour
 }
 ```
 
-`VoiceManager` 에 추가 후 Play.
+### 7-2. VoiceManager 에 부착 후 Play
 
-📸 **L2_10.png** — Console 에 마이크 이름 출력된 상태
+`VoiceManager` 에 `MicTester` 추가 → Play.
+
+📸 **L2_11.png** — Console 에 마이크 이름 출력된 상태
 
 ---
 
@@ -217,17 +216,17 @@ public class MicTester : MonoBehaviour
 
 > 자기 마이크 입력이 자기 헤드폰으로 즉시 재생됨. "마이크가 인식되는가" 가장 빠른 청각 검증.
 
-### 7-1. PlayerCharacter 의 Recorder 추가
+### 8-1. PlayerCharacter 의 Recorder 추가
 
 PlayerCharacter prefab 더블클릭으로 편집 모드 → `Add Component > Photon Voice > Recorder`.
 
-### 7-2. DebugEchoMode 활성화
+### 8-2. DebugEchoMode 활성화
 
 Recorder Inspector 에서 `Debug Echo Mode` 체크.
 
-📸 **L2_11.png** — Recorder Inspector 의 Debug Echo Mode 체크된 상태
+📸 **L2_12.png** — Recorder Inspector 의 Debug Echo Mode 체크된 상태
 
-### 7-3. Play 후 헤드폰으로 자기 목소리 확인
+### 8-3. Play 후 헤드폰으로 자기 목소리 확인
 
 - 헤드폰 착용
 - Play → 잠시 후 자기 목소리 말하기
@@ -235,9 +234,9 @@ Recorder Inspector 에서 `Debug Echo Mode` 체크.
 
 > ⚠️ 스피커로 들으면 하울링(피드백 루프) 위험. 반드시 헤드폰.
 
-📸 **L2_12.png** — Play 모드 + DebugEchoMode 체크된 Recorder Inspector (실시간 확인)
+📸 **L2_13.png** — Play 모드 + DebugEchoMode 체크된 Recorder Inspector (실시간 확인)
 
-### 7-4. 검증 완료 후 OFF
+### 8-4. 검증 완료 후 OFF
 
 실제 배포 시 자기 음성은 자기에게 안 들리는 게 자연스러움. 검증 끝나면 `Debug Echo Mode` 해제.
 
@@ -247,7 +246,7 @@ Recorder Inspector 에서 `Debug Echo Mode` 체크.
 
 > 화면 좌상단에 막대 그래프 — 말하는 동안 막대가 차오르며 마이크 음량 시각화. 청각 검증과 별도로 항상 살아 있는 디버그 도구.
 
-### 8-1. UI 준비
+### 9-1. UI 준비
 
 `Canvas` 하위에 다음 구조 (없으면 `GameObject > UI > Canvas` 부터):
 
@@ -258,18 +257,18 @@ Canvas (HUD)
    └─ Fill (Image, 초록색, 동일 위치)
 ```
 
-📸 **L2_13.png** — VolumeMeter UI 의 Hierarchy + 좌상단 위치
+📸 **L2_14.png** — VolumeMeter UI 의 Hierarchy + 좌상단 위치
 
-### 8-2. Fill Image 설정
+### 9-2. Fill Image 설정
 
 - **Image Type**: `Filled`
 - **Fill Method**: `Horizontal`
 - **Fill Origin**: `Left`
 - **Fill Amount**: `0` (초기)
 
-### 8-3. MicVolumeMeter 스크립트
+### 9-3. MicVolumeMeter 스크립트
 
-`Assets/Scripts/Voice/MicVolumeMeter.cs`:
+`Assets/2.Scripts/1.Voice/MicVolumeMeter.cs`:
 
 ```csharp
 using Photon.Voice.Unity;
@@ -280,7 +279,7 @@ public class MicVolumeMeter : MonoBehaviour
 {
     [SerializeField] Recorder recorder;
     [SerializeField] Image fillBar;
-    [SerializeField] float boost = 5f;  // 시각 가독성 보정
+    [SerializeField] float boost = 5f;
 
     void Update()
     {
@@ -291,19 +290,19 @@ public class MicVolumeMeter : MonoBehaviour
 }
 ```
 
-### 8-4. 컴포넌트 부착
+### 9-4. 컴포넌트 부착
 
 `VolumeMeter` GameObject 에 `MicVolumeMeter` 추가, Inspector 에서:
-- **Recorder** ← 씬의 PlayerCharacter 의 Recorder (또는 자기 자신의 Recorder)
+- **Recorder** ← 씬의 PlayerCharacter 의 Recorder
 - **Fill Bar** ← Fill Image
 
-📸 **L2_14.png** — MicVolumeMeter Inspector 필드 입력 완료
+📸 **L2_15.png** — MicVolumeMeter Inspector 필드 입력 완료
 
-### 8-5. 실행 + 말하기
+### 9-5. 실행 + 말하기
 
 Play → 말하면 막대가 차오르고, 입 다물면 0 으로 돌아옴.
 
-📸 **L2_15.png** — 말하는 동안 막대가 차오른 화면 캡처
+📸 **L2_16.png** — 말하는 동안 막대가 차오른 화면 캡처
 
 > 💡 막대가 0 에서 안 움직이면 마이크가 안 잡힌 것. Windows 마이크 권한 / 장치 연결 / Recorder Inspector 의 `Recording Enabled` 모두 확인.
 
@@ -311,7 +310,7 @@ Play → 말하면 막대가 차오르고, 입 다물면 0 으로 돌아옴.
 
 ## 정상 동작 체크리스트
 
-- [ ] PlayerCharacter 가 씬에 존재 + 이동 가능
+- [ ] Stylized Astronaut 가 씬에 PlayerCharacter 이름으로 존재 (Humanoid rig)
 - [ ] `PhotonAppSettings` 의 **App Id Voice** 입력됨 (App Id Quantum 과 분리)
 - [ ] `VoiceManager + PhotonVoiceNetwork` 가 씬에 존재
 - [ ] Play 시 Console 에 마이크 이름 출력
