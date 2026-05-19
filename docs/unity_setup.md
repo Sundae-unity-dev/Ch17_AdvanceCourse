@@ -125,7 +125,7 @@ Assets/
 | 증상 | 원인 | 해결 |
 |---|---|---|
 | Voice 패키지 임포트 후 컴파일 에러 (Unity 6) | Voice 2 옛 버전이라 Unity 6 API 비호환 | Photon Voice 2.55+ (Unity 6 호환판) 사용 |
-| **`PhotonRealtime/Code/` 코드 중복** (.asmdef 중복 + `CS0234`/`CS0101` 다수) | Voice 2 임포트 시 `PhotonRealtime` 폴더 체크 해제 안 함 → Quantum 의 코드와 중복 | **정석**: `Assets/Photon/` 통째 삭제 → Quantum 재임포트 → Voice 재임포트 시 `PhotonRealtime/` 체크 해제. **순서가 핵심** — Quantum 먼저, Voice 나중 |
+| **`PhotonRealtime/Code/` 코드 중복** + `'ExitGames' could not be found` + `'Realtime' does not exist` (수십~수백 개) | Asset Store 의 `Photon Voice 2` (ID 130518) 는 **Realtime 4 기반** — Quantum 3 (Realtime 5) 와 호환 안 됨. PUN2/Chat 도 같이 들어와 충돌 폭발 | **정답**: Asset Store 의 Voice 2 가 아니라 **Photon 공식 SDK 페이지** (`photonengine.com/sdks`) 의 **Photon Voice SDK Realtime5** 다운로드. 임포트 시 `PhotonRealtime/` + `Photon3Unity3D.*` 체크 해제. 자세한 절차는 L2 가이드 |
 | Voice 패키지 임포트 후 TMP 관련 에러 | TextMeshPro Essential 미임포트 | `Window > TextMeshPro > Import TMP Essential Resources` |
 | Animation Rigging Constraint 가 동작 안 함 | 캐릭터 GameObject 에 `Rig Builder` 누락 | Rig Builder 컴포넌트 추가 후 Rig 등록 |
 | 마이크 인식 안 됨 | Windows 권한 차단 | `설정 > 개인 정보 > 마이크 > Unity 허용` |

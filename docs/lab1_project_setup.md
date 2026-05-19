@@ -163,75 +163,34 @@ Quantum 임포트가 끝나면 **Photon Quantum Hub 가 자동으로 열린다**
 
 ---
 
-## Step 5 — Photon Voice 2 임포트 (⚠️ PhotonRealtime 체크 해제 필수)
+## Step 5 — Photon Voice 는 L2 에서 별도 통합 ⚠️
 
-> Step 4 에서 Quantum 이 이미 `Assets/Photon/PhotonRealtime/` 을 가지고 있다.
-> Voice 임포트 시 이 폴더를 다시 넣으면 같은 코드가 두 벌 되어 컴파일 에러 폭발 (실제 함정 — 아래 트러블슈팅 참고).
-> **Import 다이얼로그에서 `PhotonRealtime/` 폴더 체크 해제** 만 잘 하면 안전하다.
+> **L1 에서는 Voice 를 임포트하지 않는다.** 이유:
+>
+> Asset Store 의 `Photon Voice 2` (ID 130518) 는 **Photon Realtime 4** 기반 (PUN2 의존) 인데,
+> Quantum 3 는 **Photon Realtime 5** 를 사용한다. **두 SDK 의 Realtime 버전이 달라** 같이 임포트하면
+> `Folder ... contains multiple assembly definition files` · `error CS0234: 'Realtime' does not exist` ·
+> `error CS0101: already contains a definition for ...` 같은 컴파일 에러가 100건 이상 폭발한다.
 
-### 5-1. Asset Store 에서 받기
+#### 올바른 SDK — Photon Voice SDK Realtime5
 
-`Window > Asset Store` → **"Photon Voice 2"** 검색 → 카드 클릭 → `Add to My Assets`.
+Quantum 3 와 호환되는 정확한 SDK 는 **Photon Voice SDK Realtime5** (Photon Realtime 5 포함) 다.
+다운로드 위치 → [photonengine.com/sdks](https://www.photonengine.com/sdks) (Unity Asset Store 가 아닌 **Photon 공식 SDK 페이지**).
 
-📸 **L1_09.png** — Asset Store 의 Photon Voice 2 페이지 + Compatible Unity Versions 영역 (Unity 6 또는 6000.x 표시)
+이 SDK 의 설치·연결·검증은 학습 흐름상 자연스럽게 **L2 (PlayerCharacter + Voice 셋업)** 에서 다룬다.
 
-> ⚠️ Compatible Unity Versions 에 `Unity 6` 또는 `6000.x` 포함되어 있는지 반드시 확인. 옛 버전이면 Photon 포럼에서 최신 빌드 확인.
+#### L1 에서 할 일 — 패스
 
-### 5-2. Import 다이얼로그 — Quantum 과 중복되는 항목 체크 해제 ⭐
+L1 단계에서는 Voice 임포트 **건너뛰고** Step 6 (`Interaction/` 폴더 구조) 으로 바로 진행.
 
-`Window > Package Manager` > **My Assets** > **Photon Voice 2** > Download > Import → **Import 다이얼로그** 가 뜨면:
-
-**🎯 핵심 원칙**: ⚠️ **노란 경고 아이콘이 붙은 파일 = Quantum 이 이미 가진 것을 덮어쓰려고 함** → **체크 해제**
-
-#### 체크 해제 대상
-
-| 위치 | 항목 | 이유 |
-|---|---|---|
-| `Assets/Photon/PhotonRealtime/` | **폴더 전체** (자식 모두) | Quantum 의 Realtime 코드와 중복 → cs 파일 두 벌 충돌 |
-| `Assets/Photon/PhotonLibs/netstandard2.0/` | `Photon3Unity3D.deps.json` ⚠️ | Photon Realtime 5 핵심 라이브러리 |
-| 동일 | `Photon3Unity3D.dll` ⚠️ | dll 버전 충돌 시 API 불일치 → 컴파일 에러 폭발 |
-| 동일 | `Photon3Unity3D.pdb` ⚠️ | 디버그 심볼 (dll 짝) |
-| 동일 | `Photon3Unity3D.xml` ⚠️ | API 문서 (dll 짝) |
-| 그 외 ⚠️ 있는 파일 | (있다면 모두) | 같은 원칙 — Quantum 과 중복이면 해제 |
-
-#### 체크 유지 대상
-
-- `PhotonVoice/`, `PhotonVoiceApi/` (Voice 2 본체)
-- `PhotonUnityNetworking/` (Voice 가 의존하는 PUN — Quantum 과 별개)
-- `PhotonChat.asmdef` 등 "New" 라벨 + ⚠️ 없는 항목 (Quantum 에 없으므로 안전)
-- `WebSocket.cs`, `WebSocket.jslib` (PhotonLibs/WebSocket)
-
-📸 **L1_10.png** — PhotonRealtime 폴더 + Photon3Unity3D.* 모두 체크 해제된 상태 ⭐ 핵심 캡처
-
-> 💡 **간단 규칙**: 처음부터 다이얼로그 좌측을 위에서 아래로 훑으며 **⚠️ 노란 경고 아이콘 보이면 다 체크 해제**. 충돌 예방의 핵심.
-
-`Import` 클릭. 2~3분 대기.
-
-> 🔧 임포트 직후 `TextMeshPro Essentials` 임포트 팝업이 뜨면 `Import TMP Essentials` 클릭.
-
-### 5-3. ⚠️ 트러블슈팅 — PhotonRealtime 코드 중복 (이미 충돌 났을 때)
-
-Step 5-2 의 체크 해제를 안 한 채로 Voice 를 임포트했다면 Console 에 다음 에러가 폭발한다:
-
-> `Folder 'Assets/Photon/PhotonRealtime/Code/' contains multiple assembly definition files`
-> 그리고 `error CS0234: The type or namespace name 'Realtime' does not exist...` 수십 개
-> 그리고 `error CS0101: The namespace 'Photon.Realtime' already contains a definition for ...` 수십 개
-
-**원인**: Voice 와 Quantum 가 같은 PhotonRealtime cs 파일을 두 벌씩 임포트 — `.asmdef` 충돌 + 클래스 정의 중복.
-
-**⚠️ 단순히 `.asmdef` 한 개만 지우는 건 부족하다** — cs 파일이 두 벌 그대로 남아 있어 컴파일 에러가 더 폭발한다.
-
-**올바른 해결 (정석 — 재임포트)**:
-
-1. **Unity Editor 닫기**
-2. 탐색기에서 `Assets/Photon/` 폴더 **통째 삭제**
-3. (선택) `Library/` 폴더도 삭제 → 캐시 완전 초기화 (5~10분 더 걸리지만 깨끗)
-4. Unity 다시 열기 (잠시 에러 뜨는 것 무시)
-5. **Quantum 3 부터 재임포트** (Step 4)
-6. **Voice 2 임포트** — 이번엔 `PhotonRealtime/` 체크 해제 (Step 5-2)
-7. 컴파일 완료 후 Console 에러 없으면 OK
-
-📸 **L1_11.png** — `Assets/Photon/` 폴더 삭제 직전 탐색기 (트러블슈팅 시각화)
+> 💡 **이미 Voice 2 (Asset Store ID 130518) 를 임포트해서 에러가 폭발한 학생**:
+> 1. Unity Editor 닫기
+> 2. `Assets/Photon/` 폴더 **통째 삭제** (Quantum 도 같이)
+> 3. (선택) `Library/` 도 삭제 (캐시 완전 초기화)
+> 4. Unity 다시 열기 (에러 무시) → **Quantum 3 만 재임포트** (Step 4 다시)
+> 5. Voice 는 L2 에서 정확한 SDK 로 임포트
+>
+> 📸 **L1_09.png** — `Assets/Photon/` 폴더 삭제 직전 탐색기 (재임포트 함정 시각화 — 선택 캡처)
 
 ---
 

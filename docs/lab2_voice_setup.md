@@ -80,67 +80,110 @@ Position 을 `(0, 1, 0)` 으로 (지면 약간 위) 설정.
 
 ---
 
-## Step 3 — Voice 전용 AppId 발급
+## Step 3 — Photon Voice SDK Realtime5 다운로드·임포트 ⚠️
 
-> 게임용 (Quantum 3) AppId 와 **별도** 의 Voice AppId 가 필요. 같은 PhotonAppSettings 에 둘 다 따로 저장된다.
+> **Asset Store 의 "Photon Voice 2" (ID 130518) 가 아닙니다.**
+> 그건 Photon Realtime 4 기반이라 Quantum 3 (Realtime 5) 와 호환되지 않아 컴파일 에러 100+ 폭발한다.
+> 정확한 SDK = **Photon Voice SDK Realtime5** (Photon 공식 SDK 다운로드 페이지).
 
-### 3-1. Photon 대시보드 접속
+### 3-1. 공식 SDK 페이지에서 다운로드
 
-[dashboard.photonengine.com](https://dashboard.photonengine.com) 로그인.
+브라우저로 [https://www.photonengine.com/sdks](https://www.photonengine.com/sdks) 접속 → 로그인.
 
-### 3-2. 새 앱 만들기 — Voice 선택
+페이지에서 **Voice** 섹션 찾기 → **Realtime 5 호환 Unity SDK** (또는 "Photon Voice SDK Realtime5") 다운로드.
 
-`CREATE A NEW APP` 클릭 → **Photon Type: `Voice`** (⚠️ Realtime·Quantum 과 헷갈리지 말 것) → 이름: `Elice_심화_Voice` → `CREATE`.
+📸 **L2_06a.png** — Photon Engine SDKs 페이지의 Voice 섹션 (Realtime 5 버전 다운로드 버튼)
 
-📸 **L2_06.png** — Voice 선택된 생성 폼
+> 💡 **버전 식별 팁**: 다운로드 페이지에서 "Realtime 5" / "for Quantum 3" / "v2.5x+" 같은 표시 확인. "Realtime 4" 표시된 것은 Quantum 3 와 호환 안 됨.
 
-### 3-3. AppId 복사
+### 3-2. Unity 에 임포트
 
-생성된 앱 카드의 AppId 해시 문자열 복사. 메모장에 잠깐 붙여 두면 다음 단계가 편함.
+다운로드한 `.unitypackage` 파일을 더블클릭 또는 Unity 메뉴 `Assets > Import Package > Custom Package` 로 임포트.
 
-📸 **L2_07.png** — AppId 표시된 카드 (보안상 앞 8자리만 보이게 마스킹 권장)
+**Import 다이얼로그에서 반드시 체크 해제** (Quantum 과 중복 방지):
+
+| 위치 | 항목 | 이유 |
+|---|---|---|
+| `Assets/Photon/PhotonRealtime/` | **폴더 전체** | Quantum 의 Realtime 5 와 중복 |
+| `Assets/Photon/PhotonLibs/` | ⚠️ 노란 경고 있는 모든 파일 | dll 버전 충돌 방지 |
+
+> 💡 **간단 규칙**: 다이얼로그 좌측 위에서 아래로 훑으며 ⚠️ 노란 경고 아이콘 보이면 다 체크 해제.
+
+📸 **L2_06b.png** — Import 다이얼로그에서 PhotonRealtime · Photon3Unity3D.* 체크 해제된 상태 ⭐ 핵심
+
+`Import` 클릭 → 2~3분 대기.
+
+### 3-3. 임포트 결과 검증
+
+- `Assets/Photon/PhotonVoice/` 폴더 존재 ✅
+- `Assets/Photon/PhotonRealtime/` 폴더 **없음** (체크 해제했으므로) ✅
+- Console 에 빨간 에러 없음 ✅
+
+📸 **L2_06c.png** — Project 창의 Photon 폴더 구조 (Voice + Quantum 공존, PhotonRealtime 단일)
 
 ---
 
-## Step 4 — PhotonAppSettings 에 AppIdVoice 입력
+## Step 4 — Voice 전용 AppId 발급
 
-### 4-1. PhotonAppSettings 찾기
+> 게임용 (Quantum 3) AppId 와 **별도** 의 Voice AppId 가 필요. 같은 PhotonAppSettings 에 둘 다 따로 저장된다.
+
+### 4-1. Photon 대시보드 접속
+
+[dashboard.photonengine.com](https://dashboard.photonengine.com) 로그인.
+
+### 4-2. 새 앱 만들기 — Voice 선택
+
+`CREATE A NEW APP` 클릭 → **Photon Type: `Voice`** (⚠️ Realtime·Quantum 과 헷갈리지 말 것) → 이름: `Elice_심화_Voice` → `CREATE`.
+
+📸 **L2_07.png** — Voice 선택된 생성 폼
+
+### 4-3. AppId 복사
+
+생성된 앱 카드의 AppId 해시 문자열 복사. 메모장에 잠깐 붙여 두면 다음 단계가 편함.
+
+📸 **L2_08.png** — AppId 표시된 카드 (보안상 앞 8자리만 보이게 마스킹 권장)
+
+---
+
+## Step 5 — PhotonAppSettings 에 AppIdVoice 입력
+
+### 5-1. PhotonAppSettings 찾기
 
 Project 창 검색: `t:PhotonAppSettings`. 또는 `Assets/Photon/PhotonVoice/Resources/PhotonAppSettings.asset`.
 
-### 4-2. AppIdVoice 필드에 붙여넣기
+### 5-2. AppIdVoice 필드에 붙여넣기
 
 Inspector 의 **App Id Voice** 필드에 AppId 붙여넣기.
 
 > ⚠️ App Id Quantum 과는 **다른 필드** 다. Quantum 은 챕터 04 에서 입력한 값이 있을 것 — 건드리지 말 것.
 
-📸 **L2_08.png** — AppIdVoice 입력 완료된 PhotonAppSettings Inspector
+📸 **L2_09.png** — AppIdVoice 입력 완료된 PhotonAppSettings Inspector
 
-### 4-3. Fixed Region (선택)
+### 5-3. Fixed Region (선택)
 
 지연 줄이려면 `Fixed Region`: `asia` 또는 `kr`.
 
 ---
 
-## Step 5 — VoiceManager + PhotonVoiceNetwork
+## Step 6 — VoiceManager + PhotonVoiceNetwork
 
-### 5-1. 빈 GameObject 생성
+### 6-1. 빈 GameObject 생성
 
 씬에 `VoiceManager` 라는 빈 GameObject 생성.
 
-### 5-2. PhotonVoiceNetwork 컴포넌트 추가
+### 6-2. PhotonVoiceNetwork 컴포넌트 추가
 
 `VoiceManager` 에 `PhotonVoiceNetwork` 컴포넌트 추가.
 
-📸 **L2_09.png** — VoiceManager + PhotonVoiceNetwork Inspector
+📸 **L2_10.png** — VoiceManager + PhotonVoiceNetwork Inspector
 
-### 5-3. Auto Connect 설정
+### 6-3. Auto Connect 설정
 
 `Connect on Start` 체크.
 
 ---
 
-## Step 6 — 마이크 인식 테스트
+## Step 7 — 마이크 인식 테스트
 
 ### 6-1. 임시 검증 스크립트
 
@@ -170,7 +213,7 @@ public class MicTester : MonoBehaviour
 
 ---
 
-## Step 7 — 방법 A: DebugEchoMode (청각 검증)
+## Step 8 — 방법 A: DebugEchoMode (청각 검증)
 
 > 자기 마이크 입력이 자기 헤드폰으로 즉시 재생됨. "마이크가 인식되는가" 가장 빠른 청각 검증.
 
@@ -200,7 +243,7 @@ Recorder Inspector 에서 `Debug Echo Mode` 체크.
 
 ---
 
-## Step 8 — 방법 B: Volume Meter UI (시각 검증)
+## Step 9 — 방법 B: Volume Meter UI (시각 검증)
 
 > 화면 좌상단에 막대 그래프 — 말하는 동안 막대가 차오르며 마이크 음량 시각화. 청각 검증과 별도로 항상 살아 있는 디버그 도구.
 
