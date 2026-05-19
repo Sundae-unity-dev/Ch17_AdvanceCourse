@@ -44,7 +44,7 @@ Base Layer 또는 Pose Layer 에 추가.
 
 ### 2-1. 코드 작성 (요청·수락 흐름)
 
-`Assets/Interaction/Scripts/Social/GestureController.cs`:
+`Assets/Scripts/Social/GestureController.cs`:
 
 ```csharp
 using Photon.Pun;

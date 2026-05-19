@@ -56,7 +56,7 @@ Project 창에서 다음을 `Ctrl+클릭` 으로 모두 선택:
 
 ### 2-1. L1 의 새 프로젝트 열기
 
-Unity Hub > L1 에서 만든 `Module_Interaction` 프로젝트 열기.
+Unity Hub > L1 에서 만든 `Ch17_AdvanceCourse` 프로젝트 열기.
 
 ### 2-2. Package 임포트
 
@@ -187,7 +187,7 @@ Inspector 의 **App Id Voice** 필드에 AppId 붙여넣기.
 
 ### 6-1. 임시 검증 스크립트
 
-`Assets/Interaction/Scripts/Voice/MicTester.cs`:
+`Assets/Scripts/Voice/MicTester.cs`:
 
 ```csharp
 using UnityEngine;
@@ -269,7 +269,7 @@ Canvas (HUD)
 
 ### 8-3. MicVolumeMeter 스크립트
 
-`Assets/Interaction/Scripts/Voice/MicVolumeMeter.cs`:
+`Assets/Scripts/Voice/MicVolumeMeter.cs`:
 
 ```csharp
 using Photon.Voice.Unity;

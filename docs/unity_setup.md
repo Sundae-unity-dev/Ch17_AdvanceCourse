@@ -75,7 +75,7 @@ Assets/
   QuantumUser/                  # 기본 과정 산출물 (그대로 둠)
     Simulation/
     View/
-  Module06_Interaction/         # ★ 이 모듈에서 새로 만드는 것 다 여기로
+  Assets/                       # 1.Scenes ~ 5.Animations 번호 prefix 폴더
     Scripts/
       Voice/                    # L1, L2, L3 음성 관련
       Chat/                     # L4 채팅
@@ -95,7 +95,7 @@ Assets/
     UI/
 ```
 
-`Module06_Interaction` 안에 모든 산출물이 모이게 하면, 학생이 자기 작업물을 강사에게 제출할 때 이 폴더만 zip 으로 묶으면 된다.
+`Assets/1.Scenes ~ 5.Animations` 안에 모든 산출물이 모이게 하면, 학생이 자기 작업물을 강사에게 제출할 때 이 폴더들만 zip 으로 묶으면 된다.
 
 ## 4. 첫 동작 확인 (Sanity Check)
 

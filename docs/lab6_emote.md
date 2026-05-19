@@ -36,7 +36,7 @@ Mixamo (mixamo.com) 에서 무료 다운로드:
 
 ### 1-2. Unity 임포트
 
-`Assets/Interaction/Animations/Emotes/` 에 끌어다 놓기.
+`Assets/Animations/Emotes/` 에 끌어다 놓기.
 각 FBX 의 Rig 설정:
 - **Animation Type**: Humanoid
 - **Avatar Definition**: Copy From Other Avatar → PlayerCharacter 의 Avatar 선택
@@ -82,7 +82,7 @@ Exit Time: 0.95 정도 (애니메이션 거의 끝나면 자동 복귀).
 
 ### 3-1. 이모트 ID 정의
 
-`Assets/Interaction/Scripts/Emote/EmoteId.cs`:
+`Assets/Scripts/Emote/EmoteId.cs`:
 
 ```csharp
 public enum EmoteId : byte
@@ -98,7 +98,7 @@ public enum EmoteId : byte
 
 ### 3-2. EmoteController.cs
 
-`Assets/Interaction/Scripts/Emote/EmoteController.cs`:
+`Assets/Scripts/Emote/EmoteController.cs`:
 
 ```csharp
 using ExitGames.Client.Photon;

@@ -71,7 +71,7 @@ LeftFootIK:
 
 ### 3-1. 코드 작성
 
-`Assets/Interaction/Scripts/Movement/FootIKController.cs`:
+`Assets/Scripts/Movement/FootIKController.cs`:
 
 ```csharp
 using UnityEngine;

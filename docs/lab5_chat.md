@@ -47,7 +47,7 @@ Canvas
 
 ### 1-3. 메시지 1줄 프리팹
 
-`Assets/Interaction/Prefabs/ChatMessageItem.prefab`:
+`Assets/Prefabs/ChatMessageItem.prefab`:
 - TextMeshPro - Text 한 줄, 좌측 정렬
 - 자동 줄바꿈 (Word Wrapping)
 
@@ -59,7 +59,7 @@ Canvas
 
 ### 2-1. 코드 작성
 
-`Assets/Interaction/Scripts/Chat/ChatManager.cs`:
+`Assets/Scripts/Chat/ChatManager.cs`:
 
 ```csharp
 using System.Collections.Generic;

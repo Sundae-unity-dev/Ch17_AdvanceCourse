@@ -54,7 +54,7 @@ Photon 기본 `PhotonTransformView` 는 위치 데이터를 받아 즉시 `trans
 
 ### 3-1. 코드 작성
 
-`Assets/Interaction/Scripts/Movement/SmoothTransformSync.cs`:
+`Assets/Scripts/Movement/SmoothTransformSync.cs`:
 
 ```csharp
 using Photon.Pun;
