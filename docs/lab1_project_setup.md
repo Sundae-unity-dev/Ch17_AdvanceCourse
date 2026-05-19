@@ -241,7 +241,7 @@ Unity 6.3 URP 템플릿이 자동 생성한 다음 항목들은 학습에 불필
 
 📸 **L1_10.png** — 정리 완료된 `Assets/` 최상위 구조 (1.Scenes · 2.Scripts · 3.Prefabs · 4.Materials · 5.Animations · Photon · QuantumUser · Settings · TextMesh Pro 만 남은 상태)
 
-📸 **L1_09.png** — Project 창의 최종 폴더 트리 (Photon · Quantum · Animation Rigging · Interaction)
+📸 **L1_09.png** — Project 창의 최종 폴더 트리 (1.Scenes · 2.Scripts · 3.Prefabs · 4.Materials · 5.Animations · Photon · QuantumUser · Settings · TextMesh Pro)
 
 ---
 
