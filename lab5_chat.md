@@ -2,7 +2,7 @@
 
 > 음성에 이어 **텍스트 채팅** 채널을 만든다. Photon Realtime 의 `RaiseEvent` 를 활용해 모든 클라이언트에 메시지를 동기화한다.
 >
-> ⏱️ 예상 시간: 80분 · 📸 슬롯: __L5___TMP ~ __L5___TMP (코드 슬라이드 포함)
+> ⏱️ 예상 시간: 80분 · 📸 슬롯: L5_01 ~ L5_14
 
 ---
 
@@ -35,7 +35,7 @@ Canvas
    └─ InputField (TMP_InputField)
 ```
 
-📸 **__L5___TMP.png** — Hierarchy 의 ChatPanel 구조
+📸 **L5_01** — Hierarchy 의 ChatPanel 구조
 
 ### 1-2. 위치·크기 (앵커)
 
@@ -43,7 +43,7 @@ Canvas
 - 크기: 가로 500 · 세로 300
 - ScrollView 의 Vertical Layout Group + Content Size Fitter
 
-📸 **__L5___TMP.png** — ChatPanel 의 RectTransform 설정
+📸 **L5_02** — ChatPanel 의 RectTransform 설정
 
 ### 1-3. 메시지 1줄 프리팹
 
@@ -51,7 +51,7 @@ Canvas
 - TextMeshPro - Text 한 줄, 좌측 정렬
 - 자동 줄바꿈 (Word Wrapping)
 
-📸 **__L5___TMP.png** — ChatMessageItem 프리팹
+📸 **L5_03** — ChatMessageItem 프리팹
 
 ---
 
@@ -122,7 +122,7 @@ public class ChatManager : MonoBehaviour, IOnEventCallback
 }
 ```
 
-📸 **__L5___TMP.png** — ChatManager.cs 코드 슬라이드 (스크립트 에디터)
+📸 **L5_04** — ChatManager.cs 코드 슬라이드 (스크립트 에디터)
 
 ### 2-2. 씬에 부착
 
@@ -131,7 +131,7 @@ public class ChatManager : MonoBehaviour, IOnEventCallback
 - **Message Root** ← `Content (Vertical Layout)`
 - **Message Item Prefab** ← `ChatMessageItem.prefab`
 
-📸 **__L5___TMP.png** — ChatManager Inspector 필드 입력 완료
+📸 **L5_05** — ChatManager Inspector 필드 입력 완료
 
 ---
 
@@ -141,7 +141,7 @@ public class ChatManager : MonoBehaviour, IOnEventCallback
 
 `TMP_InputField` 의 `On Submit` 이벤트가 위 `Send(text)` 호출하도록 연결.
 
-📸 **__L5___TMP.png** — InputField OnSubmit 이벤트 연결
+📸 **L5_06** — InputField OnSubmit 이벤트 연결
 
 ### 3-2. Tab/Enter 로 채팅창 포커스 토글
 
@@ -163,7 +163,7 @@ public class ChatToggle : MonoBehaviour
 
 > 채팅창이 포커스되어 있을 때 캐릭터 이동(WASD) 도 막아야 함 — `EventSystem.current.currentSelectedGameObject` 검사로 처리.
 
-📸 **__L5___TMP.png** — ChatToggle 컴포넌트 추가
+📸 **L5_07** — ChatToggle 컴포넌트 추가
 
 ---
 
@@ -177,7 +177,7 @@ public class ChatToggle : MonoBehaviour
 PhotonNetwork.NickName = "Player_" + Random.Range(1000, 9999);
 ```
 
-📸 **__L5___TMP.png** — 룸 입장 전 NickName 입력 UI
+📸 **L5_08** — 룸 입장 전 NickName 입력 UI
 
 ### 4-2. 타임스탬프 추가
 
@@ -188,7 +188,7 @@ string time = System.DateTime.Now.ToString("HH:mm:ss");
 Append($"<color=#999>[{time}]</color> <b>{nick}</b>: {msg}");
 ```
 
-📸 **__L5___TMP.png** — 타임스탬프 표시된 채팅 메시지
+📸 **L5_09** — 타임스탬프 표시된 채팅 메시지
 
 ---
 
@@ -206,7 +206,7 @@ public override void OnPlayerLeftRoom(Player player)
     => Append($"<color=#f88>[시스템] {player.NickName} 님이 퇴장했습니다</color>");
 ```
 
-📸 **__L5___TMP.png** — 시스템 메시지 출력 화면
+📸 **L5_10** — 시스템 메시지 출력 화면
 
 ---
 
@@ -214,7 +214,7 @@ public override void OnPlayerLeftRoom(Player player)
 
 ### 6-1. 빌드 후 양쪽에서 메시지 주고받기
 
-📸 **__L5___TMP.png** — 두 인스턴스에서 채팅이 동기화된 상태 (좌우 화면)
+📸 **L5_11** — 두 인스턴스에서 채팅이 동기화된 상태 (좌우 화면)
 
 ### 6-2. 스크롤뷰 자동 하단 이동
 
@@ -226,7 +226,7 @@ Canvas.ForceUpdateCanvases();
 scrollRect.verticalNormalizedPosition = 0f;
 ```
 
-📸 **__L5___TMP.png** — 자동 스크롤 동작
+📸 **L5_12** — 자동 스크롤 동작
 
 ---
 
@@ -247,7 +247,7 @@ public void Clear()
 
 UI 에 Clear 버튼 추가하고 OnClick 으로 연결.
 
-📸 **__L5___TMP.png** — Clear 버튼 추가된 ChatPanel
+📸 **L5_13** — Clear 버튼 추가된 ChatPanel
 
 ---
 
@@ -269,7 +269,7 @@ public struct ChatMessage
 
 > 나중에 메시지 저장·필터링 시 유리. 지금은 간단히 진행해도 OK.
 
-📸 **__L5___TMP.png** — ChatMessage struct 코드
+📸 **L5_14** — ChatMessage struct 코드
 
 ---
 

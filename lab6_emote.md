@@ -2,7 +2,7 @@
 
 > 키 입력(1, 2, 3) 또는 UI 버튼으로 **춤·인사·박수** 같은 이모트 애니메이션을 트리거하고, 모든 클라이언트에서 동시에 실행되도록 동기화한다.
 >
-> ⏱️ 예상 시간: 60분 · 📸 슬롯: __L6___TMP ~ __L6___TMP
+> ⏱️ 예상 시간: 60분 · 📸 슬롯: L6_01 ~ L6_12
 
 ---
 
@@ -32,7 +32,7 @@ Mixamo (mixamo.com) 에서 무료 다운로드:
 
 다운로드 옵션: **FBX for Unity** · **In Place** 체크.
 
-📸 **__L6___TMP.png** — Mixamo 에서 클립 다운로드
+📸 **L6_01** — Mixamo 에서 클립 다운로드
 
 ### 1-2. Unity 임포트
 
@@ -41,7 +41,7 @@ Mixamo (mixamo.com) 에서 무료 다운로드:
 - **Animation Type**: Humanoid
 - **Avatar Definition**: Copy From Other Avatar → PlayerCharacter 의 Avatar 선택
 
-📸 **__L6___TMP.png** — Mixamo 클립 임포트 설정
+📸 **L6_02** — Mixamo 클립 임포트 설정
 
 ---
 
@@ -56,7 +56,7 @@ Mixamo (mixamo.com) 에서 무료 다운로드:
 `Any State` 에서 각 이모트 State 로 전이.
 State 이름: `Emote_Wave`, `Emote_Dance`, `Emote_Clap`.
 
-📸 **__L6___TMP.png** — Animator Window 에 Emote State 3개 추가된 상태
+📸 **L6_03** — Animator Window 에 Emote State 3개 추가된 상태
 
 ### 2-3. Trigger 파라미터
 
@@ -67,14 +67,14 @@ State 이름: `Emote_Wave`, `Emote_Dance`, `Emote_Clap`.
 
 각 전이 조건: 해당 Trigger.
 
-📸 **__L6___TMP.png** — Trigger 파라미터 3개 추가
+📸 **L6_04** — Trigger 파라미터 3개 추가
 
 ### 2-4. 이모트 종료 후 Idle 로 돌아오기
 
 각 Emote State 에서 Exit 또는 Idle State 로 `Has Exit Time = true` 로 전이.
 Exit Time: 0.95 정도 (애니메이션 거의 끝나면 자동 복귀).
 
-📸 **__L6___TMP.png** — Emote_Wave → Idle 전이의 Exit Time 설정
+📸 **L6_05** — Emote_Wave → Idle 전이의 Exit Time 설정
 
 ---
 
@@ -163,7 +163,7 @@ public class EmoteController : MonoBehaviour, IOnEventCallback
 }
 ```
 
-📸 **__L6___TMP.png** — EmoteController.cs 코드 슬라이드
+📸 **L6_06** — EmoteController.cs 코드 슬라이드
 
 ### 3-3. 프리팹에 컴포넌트 부착
 
@@ -171,7 +171,7 @@ public class EmoteController : MonoBehaviour, IOnEventCallback
 - **Animator** ← 자기 자신
 - **Photon View** ← 자기 자신
 
-📸 **__L6___TMP.png** — EmoteController Inspector 필드 연결
+📸 **L6_07** — EmoteController Inspector 필드 연결
 
 ---
 
@@ -181,14 +181,14 @@ public class EmoteController : MonoBehaviour, IOnEventCallback
 
 `Canvas` 아래 `EmotePanel` (Panel) + 3개 버튼 (Wave / Dance / Clap).
 
-📸 **__L6___TMP.png** — EmotePanel UI
+📸 **L6_08** — EmotePanel UI
 
 ### 4-2. OnClick 으로 Trigger 호출
 
 각 버튼의 OnClick → `EmoteController.Trigger(EmoteId.Wave)` (또는 Dance/Clap).
 주의: 자기 EmoteController 만 참조해야 함 — 시작 시 로컬 PhotonView.IsMine 캐릭터 찾기.
 
-📸 **__L6___TMP.png** — 버튼 OnClick 이벤트 연결
+📸 **L6_09** — 버튼 OnClick 이벤트 연결
 
 ---
 
@@ -196,13 +196,13 @@ public class EmoteController : MonoBehaviour, IOnEventCallback
 
 ### 5-1. 1번 키 → 양쪽에서 같은 캐릭터가 손 흔듦
 
-📸 **__L6___TMP.png** — 빌드와 Editor 양쪽에서 같은 캐릭터가 Wave 애니메이션
+📸 **L6_10** — 빌드와 Editor 양쪽에서 같은 캐릭터가 Wave 애니메이션
 
 ### 5-2. 동시 이모트 (1·2 동시)
 
 빠르게 1 → 2 → 3 누르면 마지막 트리거가 우선 (이전 이모트 중단). Has Exit Time 으로 처리.
 
-📸 **__L6___TMP.png** — 이모트 연속 입력 시 동작
+📸 **L6_11** — 이모트 연속 입력 시 동작
 
 ---
 
@@ -212,7 +212,7 @@ public class EmoteController : MonoBehaviour, IOnEventCallback
 
 `PlayLocal` 호출 시 1초간 이모트 아이콘 표시 (`Coroutine` 으로 처리).
 
-📸 **__L6___TMP.png** — 이모트 아이콘 표시
+📸 **L6_12** — 이모트 아이콘 표시
 
 ---
 

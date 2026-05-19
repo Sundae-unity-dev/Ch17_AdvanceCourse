@@ -2,7 +2,7 @@
 
 > L2 에서 마이크 인식까지 됐다. 이번에는 **V 키를 누르는 동안** 마이크가 켜져 다른 플레이어에게 음성이 전달되도록 구현한다.
 >
-> ⏱️ 예상 시간: 60분 · 📸 슬롯: __L3___TMP ~ __L3___TMP
+> ⏱️ 예상 시간: 60분 · 📸 슬롯: L3_01 ~ L3_14
 
 ---
 
@@ -26,7 +26,7 @@
 
 `Assets/QuantumUser/View/PlayerCharacter.prefab` 더블클릭.
 
-📸 **__L3___TMP.png** — 프리팹 편집 모드 진입
+📸 **L3_01** — 프리팹 편집 모드 진입
 
 ### 1-2. Recorder 컴포넌트 추가
 
@@ -38,14 +38,14 @@
 - **Transmit Enabled**: OFF (시작은 OFF, V 키로 켤 것)
 - **Voice Detection**: OFF (PTT 방식이므로)
 
-📸 **__L3___TMP.png** — Recorder Inspector 설정
+📸 **L3_02** — Recorder Inspector 설정
 
 ### 1-3. PhotonVoiceView 컴포넌트 추가
 
 `Add Component > Photon Voice > PhotonVoiceView`.
 이 컴포넌트가 Recorder 와 Speaker 를 묶어 네트워크상 식별자 역할.
 
-📸 **__L3___TMP.png** — PhotonVoiceView 추가된 상태
+📸 **L3_03** — PhotonVoiceView 추가된 상태
 
 ---
 
@@ -55,13 +55,13 @@
 
 같은 프리팹에 `Add Component > Photon Voice > Speaker`.
 
-📸 **__L3___TMP.png** — Speaker 컴포넌트 추가
+📸 **L3_04** — Speaker 컴포넌트 추가
 
 ### 2-2. AudioSource 자동 생성 확인
 
 Speaker 추가 시 `AudioSource` 가 자동으로 같이 붙는다. 이게 다른 플레이어의 음성을 재생할 출력 채널.
 
-📸 **__L3___TMP.png** — AudioSource 자동 생성된 상태
+📸 **L3_05** — AudioSource 자동 생성된 상태
 
 ### 2-3. 프리팹 저장
 
@@ -107,7 +107,7 @@ public class PushToTalkController : MonoBehaviour
 
 `PlayerCharacter` 프리팹에 `PushToTalkController` 추가.
 
-📸 **__L3___TMP.png** — PushToTalkController 추가된 Inspector
+📸 **L3_06** — PushToTalkController 추가된 Inspector
 
 ---
 
@@ -121,7 +121,7 @@ public class PushToTalkController : MonoBehaviour
 
 PhotonVoiceView 의 `Use Primary Recorder` 체크 — 같은 GameObject 의 Recorder 를 자동으로 연결.
 
-📸 **__L3___TMP.png** — Use Primary Recorder 체크된 상태
+📸 **L3_07** — Use Primary Recorder 체크된 상태
 
 ---
 
@@ -131,7 +131,7 @@ PhotonVoiceView 의 `Use Primary Recorder` 체크 — 같은 GameObject 의 Reco
 
 `File > Build And Run` 으로 `Build/PTT_Test.exe` 생성.
 
-📸 **__L3___TMP.png** — Build Settings 창
+📸 **L3_08** — Build Settings 창
 
 ### 5-2. Editor 와 빌드 동시 실행
 
@@ -139,14 +139,14 @@ PhotonVoiceView 의 `Use Primary Recorder` 체크 — 같은 GameObject 의 Reco
 - Unity Editor 에서도 Play → 같은 룸 입장
 - 두 인스턴스에서 서로의 캐릭터 보이는지 확인
 
-📸 **__L3___TMP.png** — 두 인스턴스 동시 화면 (좌: 빌드, 우: Editor)
+📸 **L3_09** — 두 인스턴스 동시 화면 (좌: 빌드, 우: Editor)
 
 ### 5-3. V 키 테스트
 
 - 빌드에서 V 키 누르고 말함 → Editor 에서 들려야 함
 - Editor 에서 V 키 누르고 말함 → 빌드에서 들려야 함
 
-📸 **__L3___TMP.png** — V 키 눌렀을 때 Recorder.TransmitEnabled = true 로 변하는 Inspector
+📸 **L3_10** — V 키 눌렀을 때 Recorder.TransmitEnabled = true 로 변하는 Inspector
 
 ---
 
@@ -182,13 +182,13 @@ public class SpeakingIndicator : MonoBehaviour
 }
 ```
 
-📸 **__L3___TMP.png** — 캐릭터 머리 위 마이크 아이콘 GameObject
+📸 **L3_11** — 캐릭터 머리 위 마이크 아이콘 GameObject
 
 ### 6-2. 아이콘 적용 후 테스트
 
 V 누르는 동안 자기 + 상대 캐릭터 머리 위 아이콘 ON.
 
-📸 **__L3___TMP.png** — 말하는 동안 아이콘 표시된 게임 화면
+📸 **L3_12** — 말하는 동안 아이콘 표시된 게임 화면
 
 ---
 
@@ -199,13 +199,13 @@ V 누르는 동안 자기 + 상대 캐릭터 머리 위 아이콘 ON.
 - Speaker 가 AudioSource 의 `Spatial Blend` 가 1.0 이면 거리 멀면 안 들림 → 0 으로 임시 변경해 테스트
 - 마이크 권한 다시 확인
 
-📸 **__L3___TMP.png** — AudioSource Spatial Blend = 0 으로 임시 변경
+📸 **L3_13** — AudioSource Spatial Blend = 0 으로 임시 변경
 
 ### 7-2. 자기 목소리가 자기에게 들릴 때
 
 - Recorder 의 `Debug Echo Mode` 가 ON 인지 확인. 끄면 자기 음성은 자기에게 안 들림 (보통 원함)
 
-📸 **__L3___TMP.png** — Recorder Debug Echo Mode 위치
+📸 **L3_14** — Recorder Debug Echo Mode 위치
 
 ---
 

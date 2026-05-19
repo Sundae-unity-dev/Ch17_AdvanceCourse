@@ -2,7 +2,7 @@
 
 > 단발성 이모트 트리거를 넘어, **앉기·기대기·눕기** 같은 **지속 상태 포즈** 를 만든다. **Animator Layer + Avatar Mask** 로 상체·하체를 분리 동기화하고, 의자·벽 등 환경 오브젝트와 자동 정렬한다.
 >
-> ⏱️ 예상 시간: 80분 · 📸 슬롯: __L7___TMP ~ __L7___TMP
+> ⏱️ 예상 시간: 80분 · 📸 슬롯: L7_01 ~ L7_14
 
 ---
 
@@ -30,14 +30,14 @@ Animator Window 좌측 Layers 탭 → `+` → 새 Layer `Pose Layer`.
 - Weight: 1
 - Blending: Override
 
-📸 **__L7___TMP.png** — Animator 의 두 번째 Layer (Pose Layer)
+📸 **L7_01** — Animator 의 두 번째 Layer (Pose Layer)
 
 ### 1-2. PoseLayer 에 상태 추가
 
 - `PoseIdle` (Empty State, 기본)
 - `Sit`, `Lean`, `LieDown`
 
-📸 **__L7___TMP.png** — Pose Layer 의 State 4개
+📸 **L7_02** — Pose Layer 의 State 4개
 
 ### 1-3. Bool 파라미터
 
@@ -48,7 +48,7 @@ Animator Window 좌측 Layers 탭 → `+` → 새 Layer `Pose Layer`.
 
 전이 조건: 각 Bool ↔ true ↔ false.
 
-📸 **__L7___TMP.png** — Bool 파라미터 3개
+📸 **L7_03** — Bool 파라미터 3개
 
 ---
 
@@ -59,7 +59,7 @@ Animator Window 좌측 Layers 탭 → `+` → 새 Layer `Pose Layer`.
 `Create > Avatar Mask` → `UpperBodyMask.asset`.
 Humanoid → 머리·팔만 체크, 다리는 해제.
 
-📸 **__L7___TMP.png** — Avatar Mask 의 Humanoid 영역 (상체만 활성화)
+📸 **L7_04** — Avatar Mask 의 Humanoid 영역 (상체만 활성화)
 
 ### 2-2. PoseLayer 에 적용
 
@@ -67,7 +67,7 @@ Pose Layer 의 Mask 슬롯에 `UpperBodyMask` 끌어다 놓기.
 
 > 이제 앉기 애니메이션은 상체만 적용되고, 하체는 베이스 레이어(걷기·정지) 그대로 → 의자에 앉아서도 발은 자연스럽게.
 
-📸 **__L7___TMP.png** — Pose Layer Mask 슬롯에 UpperBodyMask 적용
+📸 **L7_05** — Pose Layer Mask 슬롯에 UpperBodyMask 적용
 
 ---
 
@@ -77,7 +77,7 @@ Pose Layer 의 Mask 슬롯에 `UpperBodyMask` 끌어다 놓기.
 
 씬에 `Chair` GameObject + 자식 `SeatPoint` (Empty, 앉을 위치).
 
-📸 **__L7___TMP.png** — Chair 의 Hierarchy
+📸 **L7_06** — Chair 의 Hierarchy
 
 ### 3-2. SeatPoint.cs 스크립트
 
@@ -108,7 +108,7 @@ public class SeatPoint : MonoBehaviour
 }
 ```
 
-📸 **__L7___TMP.png** — SeatPoint 스크립트 코드
+📸 **L7_07** — SeatPoint 스크립트 코드
 
 ### 3-3. Trigger Collider
 
@@ -182,14 +182,14 @@ public class PoseController : MonoBehaviour
 }
 ```
 
-📸 **__L7___TMP.png** — PoseController.cs 코드 (Update + StartSit 부분)
+📸 **L7_08** — PoseController.cs 코드 (Update + StartSit 부분)
 
 ### 4-2. 프리팹 부착
 
 `PlayerCharacter` 프리팹에 `PoseController` 추가.
 캐릭터에 Trigger Collider (Capsule) 가 필요 — 보통 캐릭터 컨트롤러가 이미 가지고 있음.
 
-📸 **__L7___TMP.png** — PoseController 부착된 Inspector
+📸 **L7_09** — PoseController 부착된 Inspector
 
 ---
 
@@ -200,7 +200,7 @@ public class PoseController : MonoBehaviour
 같은 패턴으로 `LeanPoint` (벽 트리거), `LyingArea` (바닥 트리거) 추가.
 PoseController 의 `nearbySeat` 같은 `nearbyLean`, `nearbyLyingArea` 추가.
 
-📸 **__L7___TMP.png** — Lean 트리거 영역 (벽)
+📸 **L7_10** — Lean 트리거 영역 (벽)
 
 ### 5-2. 키 바인딩
 
@@ -214,13 +214,13 @@ PoseController 의 `nearbySeat` 같은 `nearbyLean`, `nearbyLyingArea` 추가.
 
 ### 6-1. 두 캐릭터가 다른 의자에 앉기
 
-📸 **__L7___TMP.png** — 두 캐릭터가 의자에 앉아 있는 상태 (Editor + 빌드)
+📸 **L7_11** — 두 캐릭터가 의자에 앉아 있는 상태 (Editor + 빌드)
 
 ### 6-2. 한 의자에 동시 시도
 
 먼저 앉은 사람이 우선, 늦은 사람은 `TrySit` 가 false → 앉기 못함.
 
-📸 **__L7___TMP.png** — 한 명만 앉아 있고 다른 한 명이 시도하는 상태
+📸 **L7_12** — 한 명만 앉아 있고 다른 한 명이 시도하는 상태
 
 ---
 
@@ -246,7 +246,7 @@ System.Collections.IEnumerator MoveToSeat(Vector3 to, Quaternion rot)
 }
 ```
 
-📸 **__L7___TMP.png** — MoveToSeat 코루틴 코드
+📸 **L7_13** — MoveToSeat 코루틴 코드
 
 ---
 
@@ -263,7 +263,7 @@ void OnDrawGizmos()
 }
 ```
 
-📸 **__L7___TMP.png** — 씬뷰의 SeatPoint Gizmo (점유 여부 색상)
+📸 **L7_14** — 씬뷰의 SeatPoint Gizmo (점유 여부 색상)
 
 ---
 

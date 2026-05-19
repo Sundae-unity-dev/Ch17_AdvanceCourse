@@ -2,7 +2,7 @@
 
 > 지금까지 만든 모든 요소를 하나의 통합 UI 로 묶는다. 채팅창 토글, 이모트 단축 버튼, 음성 인디케이터, 시선 디버그, 제스처 요청 알림이 한 화면에서 자연스럽게 동작하도록.
 >
-> ⏱️ 예상 시간: 70분 · 📸 슬롯: __L11___TMP ~ __L11___TMP
+> ⏱️ 예상 시간: 70분 · 📸 슬롯: L11_01 ~ L11_12
 
 ---
 
@@ -43,7 +43,7 @@ Canvas (HUD)
    └─ PlayerNameTags (월드 좌표 따라가는 닉네임)
 ```
 
-📸 **__L11___TMP.png** — Hierarchy 의 HUD 구조
+📸 **L11_01** — Hierarchy 의 HUD 구조
 
 ### 1-2. CanvasGroup 으로 영역별 페이드
 
@@ -68,7 +68,7 @@ public static class InputContext
 
 각 컨트롤러의 `Update` 시작 부분에 `if (InputContext.IsChatFocused) return;` 추가.
 
-📸 **__L11___TMP.png** — InputContext 코드 + 각 Controller 에 적용
+📸 **L11_02** — InputContext 코드 + 각 Controller 에 적용
 
 ### 2-2. Enter 로 채팅 열기, Esc 로 닫기
 
@@ -79,7 +79,7 @@ if (Keyboard.current.escapeKey.wasPressedThisFrame && InputContext.IsChatFocused
     EventSystem.current.SetSelectedGameObject(null);
 ```
 
-📸 **__L11___TMP.png** — 채팅 토글 코드
+📸 **L11_03** — 채팅 토글 코드
 
 ---
 
@@ -92,13 +92,13 @@ if (Keyboard.current.escapeKey.wasPressedThisFrame && InputContext.IsChatFocused
 - 단축키 표시 ("1", "2", "3")
 - OnClick → EmoteController.Trigger
 
-📸 **__L11___TMP.png** — EmoteBar UI 디자인
+📸 **L11_04** — EmoteBar UI 디자인
 
 ### 3-2. 호버 시 미리보기 (선택)
 
 마우스 호버 시 작은 GIF 또는 정지 이미지로 어떤 이모트인지 보여줌.
 
-📸 **__L11___TMP.png** — 이모트 버튼 호버 시 툴팁
+📸 **L11_05** — 이모트 버튼 호버 시 툴팁
 
 ---
 
@@ -121,7 +121,7 @@ void Update()
 nameTagText.color = speaker.IsPlaying ? Color.yellow : Color.white;
 ```
 
-📸 **__L11___TMP.png** — 좌상단 마이크 아이콘 + 닉네임 강조
+📸 **L11_06** — 좌상단 마이크 아이콘 + 닉네임 강조
 
 ---
 
@@ -140,7 +140,7 @@ public class Billboard : MonoBehaviour
 }
 ```
 
-📸 **__L11___TMP.png** — NameTag World UI
+📸 **L11_07** — NameTag World UI
 
 ### 5-2. 거리별 페이드
 
@@ -151,7 +151,7 @@ canvasGroup.alpha = Mathf.Clamp01(1f - (distance - fadeStart) / fadeRange);
 
 `fadeStart = 5m`, `fadeRange = 10m` 정도.
 
-📸 **__L11___TMP.png** — 가까이/멀리 닉네임 페이드 비교
+📸 **L11_08** — 가까이/멀리 닉네임 페이드 비교
 
 ---
 
@@ -178,7 +178,7 @@ public class ToastUI : MonoBehaviour
 }
 ```
 
-📸 **__L11___TMP.png** — Toast 컴포넌트 코드
+📸 **L11_09** — Toast 컴포넌트 코드
 
 ### 6-2. L10 GestureRequest 연결
 
@@ -200,7 +200,7 @@ void Update()
 }
 ```
 
-📸 **__L11___TMP.png** — 컨텍스트 힌트 표시
+📸 **L11_10** — 컨텍스트 힌트 표시
 
 ---
 
@@ -215,13 +215,13 @@ void Update()
 5. 이모트 (35~45초) — 1·2·3 키
 6. 악수·앉기 (45~60초) — E 키 후 의자에 같이 앉음
 
-📸 **__L11___TMP.png** — 통합 데모 스틸 컷
+📸 **L11_11** — 통합 데모 스틸 컷
 
 ### 8-2. 평가 산출물 영상
 
 이 60초 영상을 학생이 제출. 채점 기준의 시각 평가에 사용.
 
-📸 **__L11___TMP.png** — 영상 캡처 도구 (Unity Recorder) 설정
+📸 **L11_12** — 영상 캡처 도구 (Unity Recorder) 설정
 
 ---
 

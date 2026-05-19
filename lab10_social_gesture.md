@@ -2,7 +2,7 @@
 
 > 두 플레이어가 협동하는 **소셜 제스처** 를 구현한다. 한쪽이 트리거하면 상대방에게 RPC 신호를 보내고, **두 캐릭터가 자동으로 위치를 정렬한 뒤 동시에 애니메이션을 실행**한다.
 >
-> ⏱️ 예상 시간: 80분 · 📸 슬롯: __L10___TMP ~ __L10___TMP
+> ⏱️ 예상 시간: 80분 · 📸 슬롯: L10_01 ~ L10_14
 
 ---
 
@@ -29,14 +29,14 @@ Base Layer 또는 Pose Layer 에 추가.
 - `Handshake` (Trigger: `DoHandshake`)
 - `HighFive` (Trigger: `DoHighFive`)
 
-📸 **__L10___TMP.png** — Animator 의 Handshake / HighFive State
+📸 **L10_01** — Animator 의 Handshake / HighFive State
 
 ### 1-2. 전이 조건
 
 `Any State → Handshake` (Trigger: DoHandshake)
 종료 후 Exit Time 0.95 로 Locomotion 복귀.
 
-📸 **__L10___TMP.png** — 전이 조건 설정
+📸 **L10_02** — 전이 조건 설정
 
 ---
 
@@ -122,15 +122,15 @@ public class GestureController : MonoBehaviourPun
 }
 ```
 
-📸 **__L10___TMP.png** — GestureController.cs 코드 (FindPartner + Update)
+📸 **L10_03** — GestureController.cs 코드 (FindPartner + Update)
 
-📸 **__L10___TMP.png** — GestureController.cs 코드 (RPC 핸드셰이크 흐름)
+📸 **L10_04** — GestureController.cs 코드 (RPC 핸드셰이크 흐름)
 
 ### 2-2. 프리팹 부착
 
 `PlayerCharacter` 프리팹에 `GestureController` 추가.
 
-📸 **__L10___TMP.png** — GestureController Inspector
+📸 **L10_05** — GestureController Inspector
 
 ---
 
@@ -144,7 +144,7 @@ public class GestureController : MonoBehaviourPun
 StartCoroutine(MoveTo(mid - toReq * 0.7f, Quaternion.LookRotation(toReq), 0.3f));
 ```
 
-📸 **__L10___TMP.png** — MoveTo 코루틴 코드
+📸 **L10_06** — MoveTo 코루틴 코드
 
 ### 3-2. 두 명 보간 + 애니메이션은 보간 끝나고 실행
 
@@ -168,13 +168,13 @@ void OnGestureRequest(string type, int requesterViewId)
 }
 ```
 
-📸 **__L10___TMP.png** — GestureRequestPopup UI
+📸 **L10_07** — GestureRequestPopup UI
 
 ### 4-2. 거절 응답
 
 거절 시 요청자에게 알림. 5초 안에 응답 없으면 자동 만료.
 
-📸 **__L10___TMP.png** — 거절 후 알림 토스트
+📸 **L10_08** — 거절 후 알림 토스트
 
 ---
 
@@ -184,17 +184,17 @@ void OnGestureRequest(string type, int requesterViewId)
 
 악수 자동 진행.
 
-📸 **__L10___TMP.png** — 두 캐릭터 악수 중 (Editor + 빌드)
+📸 **L10_09** — 두 캐릭터 악수 중 (Editor + 빌드)
 
 ### 5-2. 멀리서·등 돌리고 E
 
 조건 불만족 → 아무 일 안 일어남.
 
-📸 **__L10___TMP.png** — 거리·각도 조건 불만족 시
+📸 **L10_10** — 거리·각도 조건 불만족 시
 
 ### 5-3. R 키로 하이파이브
 
-📸 **__L10___TMP.png** — 하이파이브 중
+📸 **L10_11** — 하이파이브 중
 
 ---
 
@@ -212,13 +212,13 @@ void Update()
 }
 ```
 
-📸 **__L10___TMP.png** — 악수 가능 인디케이터
+📸 **L10_12** — 악수 가능 인디케이터
 
 ### 6-2. 효과음
 
 악수 시작 시 손바닥 부딪히는 소리. AudioSource.PlayOneShot.
 
-📸 **__L10___TMP.png** — 효과음 AudioClip 슬롯
+📸 **L10_13** — 효과음 AudioClip 슬롯
 
 ---
 
@@ -234,7 +234,7 @@ rightHandIK.data.target = partner.rightHand;
 rightHandIK.weight = 1f;
 ```
 
-📸 **__L10___TMP.png** — Hand IK 가 적용된 악수 (손이 정확히 만남)
+📸 **L10_14** — Hand IK 가 적용된 악수 (손이 정확히 만남)
 
 ---
 

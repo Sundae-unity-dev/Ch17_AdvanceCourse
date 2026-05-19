@@ -2,7 +2,7 @@
 
 > L3 에서 음성이 들리긴 하지만 거리 무관하게 항상 같은 음량. 이번엔 캐릭터가 **가까이 가면 잘 들리고, 멀어지면 작아지는** 자연스러운 음향을 구현한다.
 >
-> ⏱️ 예상 시간: 50분 · 📸 슬롯: __L4___TMP ~ __L4___TMP
+> ⏱️ 예상 시간: 50분 · 📸 슬롯: L4_01 ~ L4_10
 
 ---
 
@@ -25,7 +25,7 @@
 
 `PlayerCharacter.prefab` 의 Speaker 가 자동 생성한 AudioSource 클릭.
 
-📸 **__L4___TMP.png** — AudioSource 컴포넌트 Inspector
+📸 **L4_01** — AudioSource 컴포넌트 Inspector
 
 ### 1-2. Spatial Blend 슬라이더
 
@@ -33,7 +33,7 @@
 
 > 0 이면 평면 사운드 (모든 위치에서 같은 음량), 1 이면 완전 3D 음향. 중간값은 보간.
 
-📸 **__L4___TMP.png** — Spatial Blend = 1.0
+📸 **L4_02** — Spatial Blend = 1.0
 
 ### 1-3. 3D Sound Settings 펼치기
 
@@ -48,7 +48,7 @@
 - **Min Distance**: `2` (이 거리 안에서는 최대 음량)
 - **Max Distance**: `20` (이 거리 넘으면 거의 안 들림)
 
-📸 **__L4___TMP.png** — Min/Max Distance 입력
+📸 **L4_03** — Min/Max Distance 입력
 
 ### 2-2. Volume Rolloff (감쇠 곡선)
 
@@ -60,7 +60,7 @@
 - 10m 에서 30%
 - 20m 에서 0%
 
-📸 **__L4___TMP.png** — Volume Rolloff 그래프 (사용자 정의 곡선)
+📸 **L4_04** — Volume Rolloff 그래프 (사용자 정의 곡선)
 
 ### 2-3. Spread (스피커 폭)
 
@@ -75,7 +75,7 @@
 3D 음향은 **AudioListener** 위치 기준으로 계산. 보통 메인 카메라에 붙어 있음.
 씬에 AudioListener 가 **딱 1개** 만 있어야 한다 (여러 개면 경고).
 
-📸 **__L4___TMP.png** — Main Camera 의 AudioListener 컴포넌트
+📸 **L4_05** — Main Camera 의 AudioListener 컴포넌트
 
 ### 3-2. AudioListener 가 카메라에 붙어있는지 확인
 
@@ -89,7 +89,7 @@
 
 L3 처럼 빌드 + Editor 동시 실행.
 
-📸 **__L4___TMP.png** — 두 캐릭터가 가까이 있는 상태 (큰 음량)
+📸 **L4_06** — 두 캐릭터가 가까이 있는 상태 (큰 음량)
 
 ### 4-2. 거리 멀어지면서 청취
 
@@ -98,13 +98,13 @@ L3 처럼 빌드 + Editor 동시 실행.
 - 15m: 거의 안 들림
 - 20m+: 무음
 
-📸 **__L4___TMP.png** — 캐릭터 사이 거리 15m, 음량 줄어든 상태
+📸 **L4_07** — 캐릭터 사이 거리 15m, 음량 줄어든 상태
 
 ### 4-3. Editor 에서 AudioSource 의 실시간 음량 확인
 
 Recorder.IsCurrentlyTransmitting 상태에서, Editor 의 Audio Mixer 또는 AudioSource Inspector 의 실시간 값을 보면 거리 따라 변함.
 
-📸 **__L4___TMP.png** — 거리별 음량 변화 그래프 (Audio Mixer)
+📸 **L4_08** — 거리별 음량 변화 그래프 (Audio Mixer)
 
 ---
 
@@ -115,7 +115,7 @@ Recorder.IsCurrentlyTransmitting 상태에서, Editor 의 Audio Mixer 또는 Aud
 상대 캐릭터를 자기 캐릭터의 왼쪽으로 옮김 → 왼쪽 귀로 더 크게 들림.
 오른쪽으로 옮기면 반대.
 
-📸 **__L4___TMP.png** — 상대 캐릭터가 좌측에 있는 상태
+📸 **L4_09** — 상대 캐릭터가 좌측에 있는 상태
 
 > 이건 Stereo Pan 이 AudioListener-AudioSource 의 방향 벡터에 따라 자동 계산됨.
 
@@ -128,7 +128,7 @@ Recorder.IsCurrentlyTransmitting 상태에서, Editor 의 Audio Mixer 또는 Aud
 `Doppler Level: 0` (캐릭터 이동 속도가 빠르지 않으면 도플러 효과 없게).
 빠른 차량이라면 0.5 ~ 1.0.
 
-📸 **__L4___TMP.png** — Doppler Level 설정 화면
+📸 **L4_10** — Doppler Level 설정 화면
 
 ### 6-2. Reverb Zone Mix
 

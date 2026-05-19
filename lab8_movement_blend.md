@@ -2,7 +2,7 @@
 
 > 네트워크 캐릭터가 끊겨 보이는 문제를 **보간(Lerp/Slerp)** 과 **외삽(Extrapolation)** 으로 해결하고, 속도에 따라 **정지 → 걷기 → 달리기** 가 자연스럽게 전환되는 **Blend Tree** 를 적용한다.
 >
-> ⏱️ 예상 시간: 90분 · 📸 슬롯: __L8___TMP ~ __L8___TMP (코드 슬라이드 포함)
+> ⏱️ 예상 시간: 90분 · 📸 슬롯: L8_01 ~ L8_16
 
 ---
 
@@ -27,7 +27,7 @@
 
 상대방 화면에서 캐릭터가 **딱딱 끊겨** 보이는지 확인.
 
-📸 **__L8___TMP.png** — Before: 끊겨 보이는 원격 캐릭터 (연속 프레임 캡처 또는 영상 캡처)
+📸 **L8_01** — Before: 끊겨 보이는 원격 캐릭터 (연속 프레임 캡처 또는 영상 캡처)
 
 ### 1-2. 영상 캡처 시작
 
@@ -42,7 +42,7 @@ Unity Recorder 또는 OBS 로 10초 정도 캡처. 나중에 After 영상과 비
 Photon 기본 `PhotonTransformView` 는 위치 데이터를 받아 즉시 `transform.position = received`.
 → 패킷 간격 (예: 100ms) 동안은 정지, 패킷 도착 순간 점프 → 끊겨 보임.
 
-📸 **__L8___TMP.png** — PhotonTransformView 의 기본 Inspector
+📸 **L8_02** — PhotonTransformView 의 기본 Inspector
 
 ### 2-2. 직접 보간 컴포넌트로 교체
 
@@ -111,9 +111,9 @@ public class SmoothTransformSync : MonoBehaviourPun, IPunObservable
 }
 ```
 
-📸 **__L8___TMP.png** — SmoothTransformSync.cs 코드 슬라이드 (OnPhotonSerializeView)
+📸 **L8_03** — SmoothTransformSync.cs 코드 슬라이드 (OnPhotonSerializeView)
 
-📸 **__L8___TMP.png** — SmoothTransformSync.cs 코드 슬라이드 (Update + 외삽 로직)
+📸 **L8_04** — SmoothTransformSync.cs 코드 슬라이드 (Update + 외삽 로직)
 
 ### 3-2. 캐릭터 자기 자신은 velocity 직접 전송
 
@@ -128,13 +128,13 @@ void LateUpdate()
 }
 ```
 
-📸 **__L8___TMP.png** — velocity 캐싱 코드
+📸 **L8_05** — velocity 캐싱 코드
 
 ### 3-3. 프리팹 부착
 
 `PlayerCharacter` 에 `SmoothTransformSync` 추가, `PhotonView` 의 Observed Components 리스트에 등록.
 
-📸 **__L8___TMP.png** — PhotonView Observed Components 에 SmoothTransformSync
+📸 **L8_06** — PhotonView Observed Components 에 SmoothTransformSync
 
 ---
 
@@ -144,13 +144,13 @@ void LateUpdate()
 
 상대방이 빠르게 움직여도 부드럽게 보임.
 
-📸 **__L8___TMP.png** — After: 부드러운 원격 캐릭터 이동
+📸 **L8_07** — After: 부드러운 원격 캐릭터 이동
 
 ### 4-2. 영상 비교
 
 Before · After 영상을 좌우 분할 화면으로 합성. 학생 제출 산출물.
 
-📸 **__L8___TMP.png** — Before / After 비교 합성 화면
+📸 **L8_08** — Before / After 비교 합성 화면
 
 ---
 
@@ -169,7 +169,7 @@ Base Layer 의 `Locomotion` 이라는 새 State → Motion 슬롯에 `Blend Tree
 - Walk (Threshold 2)
 - Run (Threshold 5)
 
-📸 **__L8___TMP.png** — Blend Tree 1D, Idle/Walk/Run 3개 Motion
+📸 **L8_09** — Blend Tree 1D, Idle/Walk/Run 3개 Motion
 
 ### 5-3. Threshold 자동 계산
 
@@ -193,7 +193,7 @@ void UpdateAnimator()
 
 `SetFloat` 의 dampTime (0.1) → Idle ↔ Walk ↔ Run 전환이 즉시가 아니라 0.1초 보간.
 
-📸 **__L8___TMP.png** — UpdateAnimator 코드
+📸 **L8_10** — UpdateAnimator 코드
 
 ### 6-2. 원격 캐릭터의 Speed 도 동기화
 
@@ -204,7 +204,7 @@ if (stream.IsWriting) stream.SendNext(currentSpeed);
 else animator.SetFloat("Speed", (float)stream.ReceiveNext(), 0.1f, Time.deltaTime);
 ```
 
-📸 **__L8___TMP.png** — Speed 동기화 코드
+📸 **L8_11** — Speed 동기화 코드
 
 ---
 
@@ -214,15 +214,15 @@ else animator.SetFloat("Speed", (float)stream.ReceiveNext(), 0.1f, Time.deltaTim
 
 매끄럽게 Idle → Walk → Run 으로 전환되는지 시각 확인.
 
-📸 **__L8___TMP.png** — 캐릭터가 Walk 애니메이션 중 (Speed 약 2)
+📸 **L8_12** — 캐릭터가 Walk 애니메이션 중 (Speed 약 2)
 
-📸 **__L8___TMP.png** — 캐릭터가 Run 애니메이션 중 (Speed 약 5)
+📸 **L8_13** — 캐릭터가 Run 애니메이션 중 (Speed 약 5)
 
 ### 7-2. 원격 캐릭터에서도 같은 전환
 
 빌드와 Editor 양쪽에서 같은 Speed 로 같은 Blend.
 
-📸 **__L8___TMP.png** — 양쪽 화면 동시 캡처
+📸 **L8_14** — 양쪽 화면 동시 캡처
 
 ---
 
@@ -237,13 +237,13 @@ else animator.SetFloat("Speed", (float)stream.ReceiveNext(), 0.1f, Time.deltaTim
 | 외삽만 | ✅ | 0 | ✅ | ⚠️ 큼 |
 | **Lerp + 외삽 폴백** | ✅✅ | 매우 작음 | ✅ | 작음 |
 
-📸 **__L8___TMP.png** — 비교 표 다이어그램
+📸 **L8_15** — 비교 표 다이어그램
 
 ### 8-2. Network Settings 의 SendRate 영향
 
 `PhotonNetwork.SendRate` 를 20Hz → 30Hz 로 늘리면 보간 부담 줄음. 반대로 10Hz 면 외삽 의존도 커짐.
 
-📸 **__L8___TMP.png** — SendRate 변경 후 차이
+📸 **L8_16** — SendRate 변경 후 차이
 
 ---
 
