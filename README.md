@@ -40,24 +40,24 @@
 
 | 문서 | 내용 |
 |---|---|
-| [📖 시놉시스](./synopsis.md) | 학습 목표·평가 기준·강사 메모·응용 질문 패턴 |
-| [⚙️ Unity 사전 셋업](./unity_setup.md) | 강사 사전 점검 체크리스트·트러블 슈팅 |
+| [📖 시놉시스](./docs/synopsis.md) | 학습 목표·평가 기준·강사 메모·응용 질문 패턴 |
+| [⚙️ Unity 사전 셋업](./docs/unity_setup.md) | 강사 사전 점검 체크리스트·트러블 슈팅 |
 
 ### 실습 가이드 (L1 ~ L11)
 
 | # | 실습 | 핵심 학습 |
 |---|---|---|
-| L1 | [Unity 6.3 LTS 프로젝트 셋업](./lab1_project_setup.md) | 새 프로젝트 (URP) · 패키지 임포트 · 베이스 씬 |
-| L2 | [PlayerCharacter + Photon Voice 2 셋업](./lab2_voice_setup.md) | 챕터 05 PlayerCharacter 이식 · Voice AppId · 마이크 검증 (A: DebugEcho · B: Volume Meter) |
-| L3 | [Push-to-Talk 구현](./lab3_push_to_talk.md) | Recorder · Speaker · V 키 바인딩 · 두 명 통신 |
-| L4 | [Spatial Audio (3D 음향)](./lab4_spatial_audio.md) | AudioSource 3D · 거리별 감쇠 |
-| L5 | [RPC 기반 텍스트 채팅](./lab5_chat.md) | RaiseEvent · ChatManager · UI 입력창 |
-| L6 | [이모트 애니메이션 동기화](./lab6_emote.md) | Animator Trigger · 키 입력 RPC · 1byte 이모트 ID |
-| L7 | [풀바디 포즈 (앉기·기대기·눕기)](./lab7_pose.md) | Animator Layer · Avatar Mask · 의자 자동 정렬 |
-| L8 | [이동 보간 + Blend Tree](./lab8_movement_blend.md) | Lerp/Slerp 보간 · 외삽 폴백 · 속도별 Blend |
-| L9 | [Footstep IK + LookAt 시선](./lab9_ik_lookat.md) | Animation Rigging · TwoBoneIK · MultiAimConstraint |
-| L10 | [소셜 제스처 (악수·하이파이브)](./lab10_social_gesture.md) | 두 캐릭터 위치 자동 정렬 · 동기 애니메이션 |
-| L11 | [UI 통합](./lab11_ui_integration.md) | HUD 일원화 · 채팅 토글 · 인디케이터 · 토스트 |
+| L1 | [Unity 6.3 LTS 프로젝트 셋업](./docs/lab1_project_setup.md) | 새 프로젝트 (URP) · 패키지 임포트 · 베이스 씬 |
+| L2 | [PlayerCharacter + Photon Voice 2 셋업](./docs/lab2_voice_setup.md) | 챕터 05 PlayerCharacter 이식 · Voice AppId · 마이크 검증 (A: DebugEcho · B: Volume Meter) |
+| L3 | [Push-to-Talk 구현](./docs/lab3_push_to_talk.md) | Recorder · Speaker · V 키 바인딩 · 두 명 통신 |
+| L4 | [Spatial Audio (3D 음향)](./docs/lab4_spatial_audio.md) | AudioSource 3D · 거리별 감쇠 |
+| L5 | [RPC 기반 텍스트 채팅](./docs/lab5_chat.md) | RaiseEvent · ChatManager · UI 입력창 |
+| L6 | [이모트 애니메이션 동기화](./docs/lab6_emote.md) | Animator Trigger · 키 입력 RPC · 1byte 이모트 ID |
+| L7 | [풀바디 포즈 (앉기·기대기·눕기)](./docs/lab7_pose.md) | Animator Layer · Avatar Mask · 의자 자동 정렬 |
+| L8 | [이동 보간 + Blend Tree](./docs/lab8_movement_blend.md) | Lerp/Slerp 보간 · 외삽 폴백 · 속도별 Blend |
+| L9 | [Footstep IK + LookAt 시선](./docs/lab9_ik_lookat.md) | Animation Rigging · TwoBoneIK · MultiAimConstraint |
+| L10 | [소셜 제스처 (악수·하이파이브)](./docs/lab10_social_gesture.md) | 두 캐릭터 위치 자동 정렬 · 동기 애니메이션 |
+| L11 | [UI 통합](./docs/lab11_ui_integration.md) | HUD 일원화 · 채팅 토글 · 인디케이터 · 토스트 |
 
 ---
 
@@ -96,7 +96,7 @@
 | 응용 도전 1개 이상 구현 | 10% |
 | 코드 품질 · 주석 | 5% |
 
-> 상세 평가 기준 → [synopsis.md § 평가 기준](./synopsis.md#6-평가-기준)
+> 상세 평가 기준 → [synopsis.md § 평가 기준](./docs/synopsis.md#6-평가-기준)
 
 ---
 
@@ -114,8 +114,8 @@
 ## 🏁 시작하기
 
 1. **사전 준비** — Unity Hub 에서 6.3 LTS 설치, Photon 계정 보유, 챕터 05 결과물 준비
-2. **시놉시스 한 번 훑기** → [synopsis.md](./synopsis.md)
-3. **L1 부터 차례대로** → [lab1_project_setup.md](./lab1_project_setup.md)
+2. **시놉시스 한 번 훑기** → [synopsis.md](./docs/synopsis.md)
+3. **L1 부터 차례대로** → [lab1_project_setup.md](./docs/lab1_project_setup.md)
 4. 각 실습 끝에 **응용 질문 1개 이상** 자기 식으로 풀어 보기
 
 > 💡 강사 안내: 모든 실습은 PDF 형태로도 제공됩니다. 마크다운 가이드는 작업 흐름·메모 기록용, PDF 는 학생 배포용입니다.
