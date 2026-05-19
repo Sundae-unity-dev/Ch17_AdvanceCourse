@@ -177,16 +177,35 @@ Quantum 임포트가 끝나면 **Photon Quantum Hub 가 자동으로 열린다**
 
 > ⚠️ Compatible Unity Versions 에 `Unity 6` 또는 `6000.x` 포함되어 있는지 반드시 확인. 옛 버전이면 Photon 포럼에서 최신 빌드 확인.
 
-### 5-2. Import 다이얼로그 — `PhotonRealtime/` 체크 해제
+### 5-2. Import 다이얼로그 — Quantum 과 중복되는 항목 체크 해제 ⭐
 
 `Window > Package Manager` > **My Assets** > **Photon Voice 2** > Download > Import → **Import 다이얼로그** 가 뜨면:
 
-1. 좌측 트리에서 **`Assets/Photon/PhotonRealtime/`** 폴더 찾기
-2. 그 폴더의 **체크박스 해제** (자식 항목 모두 자동 해제됨)
-3. 다른 항목 (PhotonVoice·PhotonVoiceApi·PhotonUnityNetworking 등) 은 그대로 체크 유지
-4. `Import` 클릭. 2~3분 대기
+**🎯 핵심 원칙**: ⚠️ **노란 경고 아이콘이 붙은 파일 = Quantum 이 이미 가진 것을 덮어쓰려고 함** → **체크 해제**
 
-📸 **L1_10.png** — Import 다이얼로그에서 PhotonRealtime 폴더만 체크 해제된 상태 ⭐ 핵심 캡처
+#### 체크 해제 대상
+
+| 위치 | 항목 | 이유 |
+|---|---|---|
+| `Assets/Photon/PhotonRealtime/` | **폴더 전체** (자식 모두) | Quantum 의 Realtime 코드와 중복 → cs 파일 두 벌 충돌 |
+| `Assets/Photon/PhotonLibs/netstandard2.0/` | `Photon3Unity3D.deps.json` ⚠️ | Photon Realtime 5 핵심 라이브러리 |
+| 동일 | `Photon3Unity3D.dll` ⚠️ | dll 버전 충돌 시 API 불일치 → 컴파일 에러 폭발 |
+| 동일 | `Photon3Unity3D.pdb` ⚠️ | 디버그 심볼 (dll 짝) |
+| 동일 | `Photon3Unity3D.xml` ⚠️ | API 문서 (dll 짝) |
+| 그 외 ⚠️ 있는 파일 | (있다면 모두) | 같은 원칙 — Quantum 과 중복이면 해제 |
+
+#### 체크 유지 대상
+
+- `PhotonVoice/`, `PhotonVoiceApi/` (Voice 2 본체)
+- `PhotonUnityNetworking/` (Voice 가 의존하는 PUN — Quantum 과 별개)
+- `PhotonChat.asmdef` 등 "New" 라벨 + ⚠️ 없는 항목 (Quantum 에 없으므로 안전)
+- `WebSocket.cs`, `WebSocket.jslib` (PhotonLibs/WebSocket)
+
+📸 **L1_10.png** — PhotonRealtime 폴더 + Photon3Unity3D.* 모두 체크 해제된 상태 ⭐ 핵심 캡처
+
+> 💡 **간단 규칙**: 처음부터 다이얼로그 좌측을 위에서 아래로 훑으며 **⚠️ 노란 경고 아이콘 보이면 다 체크 해제**. 충돌 예방의 핵심.
+
+`Import` 클릭. 2~3분 대기.
 
 > 🔧 임포트 직후 `TextMeshPro Essentials` 임포트 팝업이 뜨면 `Import TMP Essentials` 클릭.
 
