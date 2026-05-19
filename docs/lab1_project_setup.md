@@ -107,13 +107,27 @@ Unity Hub > `Projects` 탭 > **`New project`** 클릭.
 
 📸 **L1_07.png** — Package Manager 의 Photon Quantum Import 버튼
 
-### 4-3. Quantum Hub 첫 실행
+### 4-3. Quantum Hub 첫 실행 (Welcome 화면 4단계)
 
-임포트 후 `Tools > Quantum > Quantum Hub` 실행 → 4단계 셋업 진행 (Install / Samples Game / Account / Final Setup).
+Quantum 임포트가 끝나면 **Photon Quantum Hub 가 자동으로 열린다** (안 열리면 `Tools > Quantum > Quantum Hub` 직접 실행).
 
-📸 **L1_08.png** — Quantum Hub 의 4단계 셋업 화면
+좌측 메뉴: `Welcome` 탭. 우측에 4단계 셋업이 보인다.
 
-> 기본 과정에서 이미 해 본 작업. 자세한 단계는 [실습 1] Quantum 3 프로젝트 기본 설정 PDF 참고.
+| 단계 | 내용 | 필수 / 선택 | 학생 액션 |
+|---|---|---|---|
+| **Step 1** | Complete the installation of Quantum Unity SDK | **자동 ✅** | 임포트 완료 시 이미 체크됨 (학생이 따로 누를 것 없음) |
+| **Step 2** | Install the asteroids Quantum game sample | **선택** | "Skip this step" 클릭. 심화 모듈에선 샘플 게임 불필요 |
+| **Step 3** | Register Photon account + **Quantum AppId 입력** | **필수** | `Photon Dashboard (Opens Web Browser)` 클릭 → Quantum 종류로 새 앱 생성 → AppId 복사 → 아래 `App Id:` 입력란에 붙여넣기 |
+| **Step 4** | Install the menu package + Unity build (asteroids) | **선택** | "Skip this step" 또는 패스. 심화 모듈에선 별도 메뉴 시스템 사용 |
+
+📸 **L1_08.png** — Quantum Hub Welcome 화면 (Step 1 자동 ✅ 표시 + Step 3 AppId 입력란)
+
+> ⭐ **AppId 두 가지 명확히**:
+> - **Quantum AppId** ← 여기서 입력 (게임 시뮬레이션용)
+> - **Voice AppId** ← 다음 실습 L2 에서 별도 발급 (음성 통신용)
+> 두 개를 **반드시 분리** 해서 발급·관리한다.
+
+> 💡 기본 과정 Ch04 에서 발급한 Quantum AppId 가 있다면 그대로 재사용 가능. Photon Dashboard 에서 기존 앱 확인.
 
 ---
 
