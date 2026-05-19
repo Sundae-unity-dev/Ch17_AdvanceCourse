@@ -89,69 +89,84 @@ Unity Hub > `Projects` 탭 > **`New project`** 클릭.
 
 ---
 
-## Step 4 — Photon Voice 2 임포트
+## Step 4 — Quantum 3 SDK 임포트 (⚠️ Voice 보다 먼저)
+
+> Photon Voice 2 와 Quantum 3 는 둘 다 자체적인 `PhotonRealtime` 코드를 가지고 있다.
+> **반드시 Quantum 을 먼저 임포트** 한 뒤 Voice 를 임포트해야 충돌이 안 난다 (Step 5 참고).
 
 ### 4-1. Asset Store 에서 받기
 
-`Window > Asset Store` → Asset Store 웹페이지 열림 → **"Photon Voice 2"** 검색 → 카드 클릭.
+`Window > Asset Store` → **"Photon Quantum"** 검색 → 카드 클릭 → `Add to My Assets`.
 
-📸 **L1_06.png** — Asset Store 의 Photon Voice 2 페이지 + Compatible Unity Versions 영역 (Unity 6 또는 6000.x 표시)
+📸 **L1_06.png** — Asset Store 의 Photon Quantum 페이지
 
-> ⚠️ Compatible Unity Versions 에 `Unity 6` 또는 `6000.x` 포함되어 있는지 반드시 확인. 옛 버전이면 Photon 포럼에서 최신 빌드 확인.
+### 4-2. Package Manager 에서 Import
 
-### 4-2. My Assets > Import
+`Window > Package Manager` > **My Assets** > **Photon Quantum** > Download > Import.
+전체 체크 상태로 `Import`. 2~5분 대기.
 
-`Add to My Assets` → 자동으로 Unity 의 Package Manager 가 열림 (또는 Unity 메뉴 `Window > Package Manager > My Assets`) → **`Photon Voice 2` > Import**.
+📸 **L1_07.png** — Package Manager 의 Photon Quantum Import 버튼
 
-📸 **L1_07.png** — Package Manager > My Assets > Photon Voice 2 > Import 버튼
-
-### 4-3. Import 다이얼로그
-
-전체 체크 상태로 `Import` 클릭. 2~3분 대기.
-
-> 🔧 임포트 직후 `TextMeshPro Essentials` 임포트 팝업이 뜨면 `Import TMP Essentials` 클릭.
-
----
-
-## Step 5 — Quantum 3 SDK 임포트
-
-### 5-1. 기본 과정 챕터 04~05 의 방식과 동일
-
-Asset Store 에서 **Photon Quantum** 검색 → My Assets → Import.
-
-📸 **L1_08.png** — Photon Quantum 임포트 화면
-
-### 5-2. Quantum Hub 첫 실행
+### 4-3. Quantum Hub 첫 실행
 
 임포트 후 `Tools > Quantum > Quantum Hub` 실행 → 4단계 셋업 진행 (Install / Samples Game / Account / Final Setup).
 
+📸 **L1_08.png** — Quantum Hub 의 4단계 셋업 화면
+
 > 기본 과정에서 이미 해 본 작업. 자세한 단계는 [실습 1] Quantum 3 프로젝트 기본 설정 PDF 참고.
 
-### 5-3. ⚠️ 트러블슈팅 — PhotonRealtime 어셈블리 정의 중복
+---
 
-Quantum 3 임포트 후 Console 에 다음 에러가 뜨면:
+## Step 5 — Photon Voice 2 임포트 (⚠️ PhotonRealtime 체크 해제 필수)
+
+> Step 4 에서 Quantum 이 이미 `Assets/Photon/PhotonRealtime/` 을 가지고 있다.
+> Voice 임포트 시 이 폴더를 다시 넣으면 같은 코드가 두 벌 되어 컴파일 에러 폭발 (실제 함정 — 아래 트러블슈팅 참고).
+> **Import 다이얼로그에서 `PhotonRealtime/` 폴더 체크 해제** 만 잘 하면 안전하다.
+
+### 5-1. Asset Store 에서 받기
+
+`Window > Asset Store` → **"Photon Voice 2"** 검색 → 카드 클릭 → `Add to My Assets`.
+
+📸 **L1_09.png** — Asset Store 의 Photon Voice 2 페이지 + Compatible Unity Versions 영역 (Unity 6 또는 6000.x 표시)
+
+> ⚠️ Compatible Unity Versions 에 `Unity 6` 또는 `6000.x` 포함되어 있는지 반드시 확인. 옛 버전이면 Photon 포럼에서 최신 빌드 확인.
+
+### 5-2. Import 다이얼로그 — `PhotonRealtime/` 체크 해제
+
+`Window > Package Manager` > **My Assets** > **Photon Voice 2** > Download > Import → **Import 다이얼로그** 가 뜨면:
+
+1. 좌측 트리에서 **`Assets/Photon/PhotonRealtime/`** 폴더 찾기
+2. 그 폴더의 **체크박스 해제** (자식 항목 모두 자동 해제됨)
+3. 다른 항목 (PhotonVoice·PhotonVoiceApi·PhotonUnityNetworking 등) 은 그대로 체크 유지
+4. `Import` 클릭. 2~3분 대기
+
+📸 **L1_10.png** — Import 다이얼로그에서 PhotonRealtime 폴더만 체크 해제된 상태 ⭐ 핵심 캡처
+
+> 🔧 임포트 직후 `TextMeshPro Essentials` 임포트 팝업이 뜨면 `Import TMP Essentials` 클릭.
+
+### 5-3. ⚠️ 트러블슈팅 — PhotonRealtime 코드 중복 (이미 충돌 났을 때)
+
+Step 5-2 의 체크 해제를 안 한 채로 Voice 를 임포트했다면 Console 에 다음 에러가 폭발한다:
 
 > `Folder 'Assets/Photon/PhotonRealtime/Code/' contains multiple assembly definition files`
-> `(Photon.Realtime.asmdef, PhotonRealtime.asmdef)`
+> 그리고 `error CS0234: The type or namespace name 'Realtime' does not exist...` 수십 개
+> 그리고 `error CS0101: The namespace 'Photon.Realtime' already contains a definition for ...` 수십 개
 
-**원인**: Photon Voice 2 (Step 4) 와 Quantum 3 (Step 5) 가 같은 `PhotonRealtime` 폴더에 각자 이름이 다른 `.asmdef` 를 넣어 충돌. Unity 는 한 폴더에 하나의 `.asmdef` 만 허용.
+**원인**: Voice 와 Quantum 가 같은 PhotonRealtime cs 파일을 두 벌씩 임포트 — `.asmdef` 충돌 + 클래스 정의 중복.
 
-**해결**: 점 없는 옛 컨벤션 `PhotonRealtime.asmdef` 와 그 `.meta` 두 파일 삭제 — 점 있는 표준 `Photon.Realtime.asmdef` 만 유지.
+**⚠️ 단순히 `.asmdef` 한 개만 지우는 건 부족하다** — cs 파일이 두 벌 그대로 남아 있어 컴파일 에러가 더 폭발한다.
 
-**삭제 방법 (탐색기)**:
-1. `Assets/Photon/PhotonRealtime/Code/` 폴더 열기
-2. `PhotonRealtime.asmdef` + `PhotonRealtime.asmdef.meta` 두 파일 선택
-3. Delete
-4. Unity 로 돌아오면 자동 재컴파일
+**올바른 해결 (정석 — 재임포트)**:
 
-**삭제 방법 (PowerShell)**:
-```powershell
-Remove-Item "Assets\Photon\PhotonRealtime\Code\PhotonRealtime.asmdef*" -Force
-```
+1. **Unity Editor 닫기**
+2. 탐색기에서 `Assets/Photon/` 폴더 **통째 삭제**
+3. (선택) `Library/` 폴더도 삭제 → 캐시 완전 초기화 (5~10분 더 걸리지만 깨끗)
+4. Unity 다시 열기 (잠시 에러 뜨는 것 무시)
+5. **Quantum 3 부터 재임포트** (Step 4)
+6. **Voice 2 임포트** — 이번엔 `PhotonRealtime/` 체크 해제 (Step 5-2)
+7. 컴파일 완료 후 Console 에러 없으면 OK
 
-📸 **L1_08b.png** — 두 .asmdef 파일이 같이 보이는 Project 창 (삭제 전, 함정 시각화)
-
-> 💡 **예방 팁**: Photon Voice 2 임포트 시 Import 다이얼로그에서 `PhotonRealtime` 폴더 체크를 미리 해제하면 이 충돌이 발생하지 않는다 (Quantum 3 의 Realtime 만 사용). 이미 임포트했으면 위 사후 해결로 처리.
+📸 **L1_11.png** — `Assets/Photon/` 폴더 삭제 직전 탐색기 (트러블슈팅 시각화)
 
 ---
 
