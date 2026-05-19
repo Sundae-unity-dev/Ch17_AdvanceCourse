@@ -127,6 +127,32 @@ Asset Store 에서 **Photon Quantum** 검색 → My Assets → Import.
 
 > 기본 과정에서 이미 해 본 작업. 자세한 단계는 [실습 1] Quantum 3 프로젝트 기본 설정 PDF 참고.
 
+### 5-3. ⚠️ 트러블슈팅 — PhotonRealtime 어셈블리 정의 중복
+
+Quantum 3 임포트 후 Console 에 다음 에러가 뜨면:
+
+> `Folder 'Assets/Photon/PhotonRealtime/Code/' contains multiple assembly definition files`
+> `(Photon.Realtime.asmdef, PhotonRealtime.asmdef)`
+
+**원인**: Photon Voice 2 (Step 4) 와 Quantum 3 (Step 5) 가 같은 `PhotonRealtime` 폴더에 각자 이름이 다른 `.asmdef` 를 넣어 충돌. Unity 는 한 폴더에 하나의 `.asmdef` 만 허용.
+
+**해결**: 점 없는 옛 컨벤션 `PhotonRealtime.asmdef` 와 그 `.meta` 두 파일 삭제 — 점 있는 표준 `Photon.Realtime.asmdef` 만 유지.
+
+**삭제 방법 (탐색기)**:
+1. `Assets/Photon/PhotonRealtime/Code/` 폴더 열기
+2. `PhotonRealtime.asmdef` + `PhotonRealtime.asmdef.meta` 두 파일 선택
+3. Delete
+4. Unity 로 돌아오면 자동 재컴파일
+
+**삭제 방법 (PowerShell)**:
+```powershell
+Remove-Item "Assets\Photon\PhotonRealtime\Code\PhotonRealtime.asmdef*" -Force
+```
+
+📸 **L1_08b.png** — 두 .asmdef 파일이 같이 보이는 Project 창 (삭제 전, 함정 시각화)
+
+> 💡 **예방 팁**: Photon Voice 2 임포트 시 Import 다이얼로그에서 `PhotonRealtime` 폴더 체크를 미리 해제하면 이 충돌이 발생하지 않는다 (Quantum 3 의 Realtime 만 사용). 이미 임포트했으면 위 사후 해결로 처리.
+
 ---
 
 ## Step 6 — 폴더 구조 정리
