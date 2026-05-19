@@ -117,7 +117,7 @@ Quantum 임포트가 끝나면 **Photon Quantum Hub 가 자동으로 열린다**
 |---|---|---|---|
 | **Step 1** | Complete the installation of Quantum Unity SDK | **자동 ✅** | 임포트 완료 시 이미 체크됨 (학생이 따로 누를 것 없음) |
 | **Step 2** | Install the asteroids Quantum game sample | **선택** | "Skip this step" 클릭. 심화 모듈에선 샘플 게임 불필요 |
-| **Step 3** | Register Photon account + **Quantum AppId 입력** | **필수** | `Photon Dashboard (Opens Web Browser)` 클릭 → Quantum 종류로 새 앱 생성 → AppId 복사 → 아래 `App Id:` 입력란에 붙여넣기 |
+| **Step 3** | Register Photon account + **Quantum AppId 입력** | **필수** | 아래 **Step 3 상세 (Photon Dashboard)** 참고 |
 | **Step 4** | Install the menu package + Unity build (asteroids) | **선택** | "Skip this step" 또는 패스. 심화 모듈에선 별도 메뉴 시스템 사용 |
 
 📸 **L1_08.png** — Quantum Hub Welcome 화면 (Step 1 자동 ✅ 표시 + Step 3 AppId 입력란)
@@ -128,6 +128,38 @@ Quantum 임포트가 끝나면 **Photon Quantum Hub 가 자동으로 열린다**
 > 두 개를 **반드시 분리** 해서 발급·관리한다.
 
 > 💡 기본 과정 Ch04 에서 발급한 Quantum AppId 가 있다면 그대로 재사용 가능. Photon Dashboard 에서 기존 앱 확인.
+
+#### Step 3 상세 — Photon Dashboard 에서 Quantum AppId 발급
+
+1. Quantum Hub 의 **`Photon Dashboard (Opens Web Browser)`** 버튼 클릭 → 브라우저로 [dashboard.photonengine.com](https://dashboard.photonengine.com) 열림 (로그인 필요).
+
+📸 **L1_08a.png** — Photon Dashboard 메인 화면 (`Create New App` 카드 위치)
+
+2. **`Create New App`** 카드 클릭 → 새 앱 생성 폼 열림.
+
+3. 폼 입력:
+
+| 필드 | 입력값 | 비고 |
+|---|---|---|
+| **Select Photon SDK** | **`Quantum`** ⭐ | Voice / Realtime 과 헷갈리지 말 것 |
+| **Select SDK Version** | `Quantum 3 (Recommended)` | 자동 선택됨 |
+| **Application Name** | `Ch17_AdvanceCourse` 같은 식별 가능한 이름 | 본인 알아볼 이름 |
+| **Description** | "심화 과정 Quantum" 같은 짧은 설명 | 선택 |
+| **Url** | **비워두기** | 마케팅·랜딩 페이지용. 학습 시 불필요 |
+
+📸 **L1_08b.png** — 새 앱 생성 폼 (**Photon SDK: Quantum** + 입력 완료 + URL 빈 상태) ⭐ 핵심 캡처
+
+4. **`CREATE`** 클릭 → 앱 생성됨.
+
+5. 생성된 앱 카드에서 **AppId** (긴 영숫자 해시) 복사.
+
+📸 **L1_08c.png** — 생성된 앱 카드 + AppId 위치 (보안상 앞 8자리만 보이게 마스킹 권장)
+
+6. Unity 의 Quantum Hub 로 돌아와 **`App Id:`** 입력란에 붙여넣기 → Step 3 완료.
+
+> ⚠️ **URL 필드와 Webhook 의 차이**:
+> - **URL 필드** (앱 생성 폼) = 마케팅·랜딩 페이지 외부 링크. 비워두기.
+> - **Webhook** = 게임 이벤트 알림용 (룸 생성·플레이어 입장 등). 앱 생성 후 별도 `Webhooks` 탭에서 설정. 학습엔 불필요.
 
 ---
 
