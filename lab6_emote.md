@@ -224,7 +224,7 @@ public class EmoteController : MonoBehaviour, IOnEventCallback
 - [ ] UI 버튼 클릭으로도 동일 동작
 - [ ] PhotonView.IsMine 으로 자기/원격 캐릭터 구분
 
-다음 실습 **L6 — 풀바디 포즈 (앉기·기대기·눕기)** 에서는 Animator Layer 와 Avatar Mask 로 더 정교한 캐릭터 표현을 만든다.
+다음 실습 **L7 — 풀바디 포즈 (앉기·기대기·눕기)** 에서는 Animator Layer 와 Avatar Mask 로 더 정교한 캐릭터 표현을 만든다.
 
 ---
 

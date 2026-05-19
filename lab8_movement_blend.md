@@ -255,7 +255,7 @@ else animator.SetFloat("Speed", (float)stream.ReceiveNext(), 0.1f, Time.deltaTim
 - [ ] 양쪽 클라이언트에서 같은 Blend 결과
 - [ ] Before/After 비교 영상 캡처 완료 (산출물)
 
-다음 실습 **L8 — Footstep IK + LookAt** 에서는 발이 지면에 자연스럽게 닿고, 캐릭터가 다른 플레이어를 자연스럽게 바라보도록 만든다.
+다음 실습 **L9 — Footstep IK + LookAt** 에서는 발이 지면에 자연스럽게 닿고, 캐릭터가 다른 플레이어를 자연스럽게 바라보도록 만든다.
 
 ---
 
