@@ -180,6 +180,10 @@ Dashboard 마법사 화면으로 돌아와 하단 `다음` 클릭.
 
 마법사가 “구성 완료” 같은 마지막 안내 화면을 보여준다. 추가 작업이 없으면 `완료(Finish)` 클릭.
 
+> 💡 **Dashboard 의 `패키지 및 SDK` 페이지는 무시해도 된다**
+> 그 페이지에 보이는 **Unity Windows SDK / Unity Android SDK / Core Android SDK / Core Windows SDK** 등은 `com.unity.services.vivox` 16.x 패키지 안에 이미 네이티브 플러그인 (`VivoxNative.dll`·`libVivoxNative.so`) 으로 포함되어 있어 별도로 받지 않아도 된다.
+> `패키지 설치` 버튼은 Unity Editor 로 Deep Link 를 보내지만 자주 전달이 안 된다. 눌렀을 때 아무 반응 없어도 무시. **Unreal 엔진이나 Switch/PS 콘솔 빌드** 같은 특수 경우에만 의미가 있다.
+
 ### 4-6. Player Authentication 활성화 (마법사 외 별도)
 
 Vivox 설정 가이드 마법사는 Vivox 활성화까지만 처리한다. **Player Authentication 은 별도로 활성화** 해야 한다.
