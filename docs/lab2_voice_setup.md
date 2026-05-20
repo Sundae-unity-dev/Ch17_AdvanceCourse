@@ -129,48 +129,79 @@ Package Manager 좌측에서 `Unity Registry` 선택 → 검색창에 `auth` 입
 
 ## Step 4 — Unity Dashboard 에서 Vivox 서비스 활성화
 
-> Vivox 는 UGS 의 일부 → Unity Dashboard 에서 프로젝트 ID 발급 + Vivox 활성화 흐름.
+> Vivox 는 UGS 의 일부다. Unity Dashboard 에서 프로젝트를 만들고, Vivox 의 **공식 설정 가이드 (3단계 마법사)** 를 그대로 따라가면 Unity 프로젝트 연결까지 자동으로 처리된다. Player Authentication 만 마법사 외부에서 별도로 활성화하면 끝.
 
-### 4-1. Unity Dashboard 접속
+### 4-1. Unity Dashboard 접속 + 프로젝트 생성
 
 브라우저로 [cloud.unity.com](https://cloud.unity.com) 로그인 → 좌측 `Projects` → `Create project` (또는 기존 프로젝트 선택) → 이름: `Ch17_AdvanceCourse` → `Create`.
 
-생성된 프로젝트의 **Project ID** 를 메모해 둔다 (UUID 형식).
+생성된 프로젝트를 클릭해 상세 페이지로 들어간다. `설정(Settings)` 탭의 **Project ID** (UUID) 는 한 번 확인해두면 좋다 (필수는 아님 — Unity 에디터가 자동 매칭).
 
-📸 **L2_07.png** — Unity Dashboard 의 Ch17_AdvanceCourse 프로젝트 + Project ID 표시
+📸 **L2_07.png** — Unity Dashboard 의 Ch17_AdvanceCourse 프로젝트 상세 페이지
 
-### 4-2. Vivox + Authentication 서비스 활성화
+### 4-2. Vivox 진입 + 설정 가이드 시작
 
-Dashboard 좌측 메뉴 `Products`:
+Dashboard 상단 탭 `서비스(Services)` → **Vivox Voice and Text Chat** 카드 클릭 → 좌측 메뉴 **`설정 가이드`** 선택.
 
-1. **Vivox** → `Activate` 또는 `Get started`
-2. **Authentication** → `Activate` (Anonymous sign-in 사용)
+마법사 3단계가 차례대로 진행된다.
 
-> ⚠️ **Authentication 도 반드시 활성화**. Vivox 는 UGS 인증 토큰 기반이라 Authentication 을 같이 켜야 정상 로그인된다.
+📸 **L2_08a.png** — Vivox 설정 가이드 1단계 (엔진 및 서비스 선택) 진입 화면
 
-📸 **L2_08.png** — Dashboard 에서 Vivox + Authentication 둘 다 Active 표시된 상태
+### 4-3. 마법사 1단계 — 엔진 및 서비스 선택
 
-### 4-3. Unity 에디터에서 프로젝트 연결
+- **게임 엔진**: **`Unity Build Automation`** 클릭 (Unreal / 커스텀 무시)
+- **필수 서비스**: **`Voice and Text Chat`** 이 이미 선택됨 — 그대로 둔다
+- **선택 서비스 (Safe Text)**: 강의 범위 밖이라 **선택하지 않음**
 
-Unity 메뉴 `Edit > Project Settings > Services` → `Link to existing Unity Cloud Project` → Organization · Project 선택 (4-1 에서 만든 `Ch17_AdvanceCourse`) → `Link`.
+하단 `다음` 클릭.
 
-연결되면 우측 패널에 다음이 표시되어 있어야 한다.
+### 4-4. 마법사 2단계 — Unity 프로젝트 연결
+
+마법사가 자동으로 "Edit > Project Settings > Services" 의 Link 절차를 안내한다.
+
+1. Unity 에디터 열고 `Edit > Project Settings > Services`
+2. `Use an existing Unity project ID` 섹션의 Organizations / Projects 드롭다운:
+   - **Organization**: 본인 조직 (예: `bjclove15`)
+   - **Project**: `Ch17_AdvanceCourse`
+3. `Link project ID` 클릭
+
+연결되면 우측 패널에 다음이 표시된다.
 - **Project Name**: `Ch17_AdvanceCourse`
-- **Unity Organization**: 본인 조직
 - **Unity Project ID**: UUID 표시 + `Unlink project` 버튼
 - 좌측 트리에 `Services > Vivox` 항목 자동 추가
 
-📸 **L2_09.png** — Project Settings > Services 에 Project ID 가 연결된 모습
+Dashboard 마법사 화면으로 돌아와 하단 `다음` 클릭.
 
-### 4-4. Vivox 패널 확인
+> 💡 **이미 연결돼 있다면 그냥 `다음`**: 어제·이전에 다른 흐름으로 같은 프로젝트를 Link 했다면 `Unlink project` 버튼이 이미 보이는 상태다. 이 단계는 추가 작업 없이 `다음` 만 누르면 통과된다. ("Project was linked successfully" 배너는 최초 Link 1회만 표시되므로 안 보여도 정상.)
 
-좌측 트리 `Services > Vivox` 클릭 → 우측에 `Environment Configuration` 섹션이 보임:
+📸 **L2_09.png** — Project Settings > Services 에 Ch17_AdvanceCourse 가 연결된 화면
+
+### 4-5. 마법사 3단계 — 서비스 구성
+
+마법사가 “구성 완료” 같은 마지막 안내 화면을 보여준다. 추가 작업이 없으면 `완료(Finish)` 클릭.
+
+### 4-6. Player Authentication 활성화 (마법사 외 별도)
+
+Vivox 설정 가이드 마법사는 Vivox 활성화까지만 처리한다. **Player Authentication 은 별도로 활성화** 해야 한다.
+
+1. Dashboard 의 `Ch17_AdvanceCourse` → `서비스` 탭
+2. 목록을 아래로 스크롤해 **Player Authentication** 카드 찾기 (설명: "익명, 플랫폼별 또는 커스텀 플레이어 인증")
+3. 카드 우측 `실행` 클릭 → Authentication 상세 페이지의 `Identity Providers` 화면 진입
+4. 화면이 열리면 **활성 상태로 간주**. Identity Provider 등록은 0개 그대로 두어도 OK — 익명 로그인 (`SignInAnonymouslyAsync`) 은 Provider 없이 동작.
+
+> 💡 한국어 라벨 함정: 서비스 탭의 **"활성화된 Game Overrides"** 섹션은 사실 "최근 30일간 트래픽이 있었던 서비스" 라는 뜻이다. 트래픽이 없는 신규 서비스는 비활성/설정 중 섹션에 머문다. **이게 “비활성”을 의미하지는 않는다**.
+
+📸 **L2_08b.png** — Player Authentication 의 Identity Providers 페이지
+
+### 4-7. Vivox 패널 정상 상태 확인
+
+다시 Unity 에디터 `Edit > Project Settings > Services` → 좌측 트리 `Services > Vivox` 클릭 → 우측 `Environment Configuration` 섹션:
 
 - **Server / Domain / Token Issuer / Token Key**: 모두 비어 있음 ✅ (UGS Dashboard 자동 인증 방식에서는 빈 칸이 정상. Test Mode 켜는 학습 경로에서만 채움)
 - **Test Mode**: OFF ✅
 - 페이지 하단에 **노란 경고가 없어야 한다**.
 
-> ⚠️ 만약 `The Authentication Package has not been imported.` 노란 경고가 보이면 Step 3-4 의 Authentication 패키지 설치가 빠진 상태다. 돌아가서 설치 후 Unity 를 재시작.
+> ⚠️ 만약 `The Authentication Package has not been imported.` 노란 경고가 보이면 Step 3-4 의 Authentication 패키지 설치가 빠진 상태다. 돌아가서 설치 후 (필요하면 Unity 재시작) 다시 확인.
 
 📸 **L2_09b.png** — Vivox 패널의 Environment Configuration 섹션 (빈 칸 + 노란 경고 없음)
 
