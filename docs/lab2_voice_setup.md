@@ -224,9 +224,9 @@ Vivox 설정 가이드 마법사는 Vivox 활성화까지만 처리한다. **Pla
 
 ---
 
-## Step 5 — Vivox 매니저 스크립트 (통합본)
+## Step 5 — Vivox 초기화 매니저 스크립트 (기본 골격)
 
-> 이 한 파일에 **초기화(Step 5) · 로그인+채널(Step 6) · 마이크 인식(Step 7) · Echo 채널(Step 8)** 의 모든 메서드와 디버그 키 바인딩을 한꺼번에 넣는다. 학생은 한 번의 복사 붙여넣기로 모든 검증 단계에 필요한 코드를 확보한다. 이후 Step 6~8 에서는 코드 추가 없이 **Play 모드에서 키만 눌러 검증**한다.
+> 우선 **초기화만 담당하는 골격 코드** 부터 작성한다. 이후 Step 6 / 7 / 8 을 진행하면서 같은 파일에 메서드를 하나씩 추가해 점진적으로 발전시킨다. 각 Step 끝에는 "지금까지 누적된 전체 코드" 를 한 번씩 다시 보여주므로 위치 찾는 일은 없다.
 
 ### 5-1. VivoxManager.cs 작성
 
@@ -234,15 +234,13 @@ Vivox 설정 가이드 마법사는 Vivox 활성화까지만 처리한다. **Pla
 
 ```csharp
 // =============================================================================
-// VivoxManager.cs — Vivox 음성 SDK 의 초기화 / 로그인 / 채널 입장 / 마이크 인식 /
-//                   Echo 검증을 한 곳에서 담당하는 매니저.
+// VivoxManager.cs — Vivox 음성 SDK 의 초기화 / 로그인 / 채널 입장을 담당
 // -----------------------------------------------------------------------------
 // 학습 포인트:
 // 1) Unity Gaming Services 의 초기화는 반드시 정해진 순서를 따라야 한다.
 //    UnityServices  →  AuthenticationService  →  VivoxService
 // 2) 세 단계 모두 await 가 필요한 비동기 작업이라 async/await 패턴을 쓴다.
 // 3) 어디서든 VivoxManager.Instance.XXX 로 접근할 수 있도록 싱글톤으로 만든다.
-// 4) 검증 단계에서는 UI 대신 디버그 키 (L/J/M/E/X) 로 트리거한다.
 // =============================================================================
 
 using System;
@@ -264,7 +262,6 @@ public class VivoxManager : MonoBehaviour
     // ---------------------------------------------------------------------
     [SerializeField] string defaultChannelName = "Lobby";  // 기본 입장 채널 이름
     [SerializeField] string displayName = "Player";        // Vivox 표시 이름 (접두어로 사용)
-    [SerializeField] string echoChannelName = "EchoTest";  // Echo 검증 채널 이름
 
     // ---------------------------------------------------------------------
     // 외부에서 "지금 로그인되어 있나?" 를 확인할 때 쓰는 읽기 전용 프로퍼티
@@ -297,28 +294,6 @@ public class VivoxManager : MonoBehaviour
     }
 
     // ---------------------------------------------------------------------
-    // Update — 매 프레임 호출되는 Unity 콜백. 검증용 디버그 키 바인딩.
-    //   L 키 → Vivox 로그인              (LoginAsync)
-    //   J 키 → 기본 그룹 채널 입장        (JoinDefaultChannelAsync)
-    //   M 키 → 인식된 마이크 목록 출력    (LogInputDevices)
-    //   E 키 → Echo 채널 입장 (청각 검증) (JoinEchoChannelAsync)
-    //   X 키 → Echo 채널 나가기           (LeaveEchoChannelAsync)
-    // 실제 게임에서는 UI 버튼으로 대체하지만, 검증 단계는 키가 가장 빠르다.
-    // ---------------------------------------------------------------------
-    async void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.L)) await LoginAsync();
-        if (Input.GetKeyDown(KeyCode.J)) await JoinDefaultChannelAsync();
-        if (Input.GetKeyDown(KeyCode.M)) LogInputDevices();
-        if (Input.GetKeyDown(KeyCode.E)) await JoinEchoChannelAsync();
-        if (Input.GetKeyDown(KeyCode.X)) await LeaveEchoChannelAsync();
-    }
-
-    // =====================================================================
-    // 1) 초기화
-    // =====================================================================
-
-    // ---------------------------------------------------------------------
     // InitializeAsync — UGS / Auth / Vivox 를 차례로 초기화
     // 순서를 반드시 지켜야 한다. 한 단계라도 어긋나면 다음 단계가 토큰을
     // 받지 못해 AuthenticationException 또는 Credentials 오류가 발생한다.
@@ -347,11 +322,39 @@ public class VivoxManager : MonoBehaviour
             Debug.LogError($"[Vivox] Init failed: {e.Message}");
         }
     }
+}
+```
 
-    // =====================================================================
-    // 2) 로그인 + 채널 입장
-    // =====================================================================
+### 5-2. VivoxManager 빈 GameObject 생성
 
+씬에 `VivoxManager` 라는 빈 GameObject 생성 → 위 스크립트 부착.
+
+Inspector 에서:
+- **Default Channel Name**: `Lobby`
+- **Display Name**: `Astronaut`
+
+📸 **L2_10.png** — VivoxManager Inspector (DefaultChannelName · DisplayName)
+
+### 5-3. 초기화 검증
+
+Play → Console 에 `[Vivox] Initialized. PlayerId=...` 출력 확인.
+
+> 💡 **자주 나는 에러**:
+> - `Vivox service is not active in your project` → Dashboard 의 Vivox 활성화 또는 자격 증명 발급 누락
+> - `AuthenticationException` → Authentication 패키지 미설치 또는 Player Authentication 미활성
+> - `Cannot link cloud project` → Project Settings > Services 의 프로젝트 연결 누락
+
+---
+
+## Step 6 — 로그인 + 채널 입장 (코드 추가)
+
+> Step 5 의 코드에 **두 메서드 + Update() 키 바인딩** 을 추가한다. 추가가 끝나면 Step 6 끝의 "✅ 지금까지의 전체 코드" 와 본인 코드를 한 번 비교한다.
+
+### 6-1. 추가할 메서드 두 개
+
+`VivoxManager` 클래스 안에 다음 두 메서드를 추가한다 (`InitializeAsync()` 메서드의 아래에 붙여 넣으면 자연스러움).
+
+```csharp
     // ---------------------------------------------------------------------
     // LoginAsync — Vivox 에 표시 이름(DisplayName) 으로 로그인
     // 같은 PC 에서 여러 번 테스트해도 충돌이 없도록 4자리 난수를 붙인다.
@@ -360,9 +363,8 @@ public class VivoxManager : MonoBehaviour
     {
         var options = new LoginOptions
         {
-            // 예: "Astronaut_3742" 처럼 매번 다른 이름으로 로그인
             DisplayName = displayName + "_" + UnityEngine.Random.Range(1000, 9999),
-            EnableTTS = false, // 텍스트→음성 합성 기능은 끔
+            EnableTTS = false,
         };
 
         await VivoxService.Instance.LoginAsync(options);
@@ -371,10 +373,7 @@ public class VivoxManager : MonoBehaviour
 
     // ---------------------------------------------------------------------
     // JoinDefaultChannelAsync — Inspector 에 설정한 채널에 음성 전용으로 입장
-    // ChatCapability:
-    //   AudioOnly     → 음성만
-    //   TextOnly      → 텍스트만
-    //   TextAndAudio  → 음성 + 텍스트
+    // ChatCapability: AudioOnly / TextOnly / TextAndAudio
     // ---------------------------------------------------------------------
     public async Task JoinDefaultChannelAsync()
     {
@@ -384,11 +383,137 @@ public class VivoxManager : MonoBehaviour
 
         Debug.Log($"[Vivox] Joined channel: {defaultChannelName}");
     }
+```
 
-    // =====================================================================
-    // 3) 마이크 인식 확인 (Step 7)
-    // =====================================================================
+### 6-2. 추가할 Update() 키 바인딩
 
+키 입력으로 두 메서드를 호출할 수 있도록 `Update()` 콜백을 새로 추가한다 (위치는 `Start()` 메서드 아래가 자연스러움).
+
+```csharp
+    // ---------------------------------------------------------------------
+    // Update — 매 프레임 호출되는 Unity 콜백. 검증용 디버그 키 바인딩.
+    //   L 키 → Vivox 로그인        (LoginAsync)
+    //   J 키 → 기본 그룹 채널 입장  (JoinDefaultChannelAsync)
+    // 실제 게임에서는 UI 버튼으로 대체하지만, 검증 단계는 키가 가장 빠르다.
+    // ---------------------------------------------------------------------
+    async void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L)) await LoginAsync();
+        if (Input.GetKeyDown(KeyCode.J)) await JoinDefaultChannelAsync();
+    }
+```
+
+### 6-3. 검증 절차
+
+1. `Ctrl + S` 저장 → Unity 컴파일 대기 → Console 에 빨간 에러 없는지 확인
+2. **Play ▶️** 클릭
+3. 잠시 후 Console 에 `[Vivox] Initialized. PlayerId=...` 가 한 번 뜸
+4. **Game 뷰를 한 번 클릭** (포커스 잡기) — 안 하면 키 입력이 안 잡힘
+5. **`L` 키** 누르기 → Console 에 다음 줄이 떠야 정상:
+   ```
+   [Vivox] Logged in as Astronaut_xxxx
+   ```
+6. **`J` 키** 누르기 → Console 에 다음 줄이 떠야 정상:
+   ```
+   [Vivox] Joined channel: Lobby
+   ```
+
+📸 **L2_11.png** — Console 에 `Initialized` + `Logged in` + `Joined channel` 세 줄이 차례로 출력된 상태
+
+> ⚠️ Scene 뷰가 활성화된 상태에서는 키 입력이 들어오지 않는다. 반드시 Game 뷰를 클릭한 다음 키를 누른다.
+
+### 6-4. ✅ 지금까지의 전체 코드 (Step 6 누적)
+
+```csharp
+using System;
+using System.Threading.Tasks;
+using Unity.Services.Authentication;
+using Unity.Services.Core;
+using Unity.Services.Vivox;
+using UnityEngine;
+
+public class VivoxManager : MonoBehaviour
+{
+    public static VivoxManager Instance { get; private set; }
+
+    [SerializeField] string defaultChannelName = "Lobby";
+    [SerializeField] string displayName = "Player";
+
+    public bool IsLoggedIn =>
+        VivoxService.Instance != null && VivoxService.Instance.IsLoggedIn;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    async void Start()
+    {
+        await InitializeAsync();
+    }
+
+    async void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L)) await LoginAsync();
+        if (Input.GetKeyDown(KeyCode.J)) await JoinDefaultChannelAsync();
+    }
+
+    public async Task InitializeAsync()
+    {
+        try
+        {
+            if (UnityServices.State != ServicesInitializationState.Initialized)
+                await UnityServices.InitializeAsync();
+
+            if (!AuthenticationService.Instance.IsSignedIn)
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+
+            await VivoxService.Instance.InitializeAsync();
+
+            Debug.Log($"[Vivox] Initialized. PlayerId={AuthenticationService.Instance.PlayerId}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[Vivox] Init failed: {e.Message}");
+        }
+    }
+
+    public async Task LoginAsync()
+    {
+        var options = new LoginOptions
+        {
+            DisplayName = displayName + "_" + UnityEngine.Random.Range(1000, 9999),
+            EnableTTS = false,
+        };
+
+        await VivoxService.Instance.LoginAsync(options);
+        Debug.Log($"[Vivox] Logged in as {options.DisplayName}");
+    }
+
+    public async Task JoinDefaultChannelAsync()
+    {
+        await VivoxService.Instance.JoinGroupChannelAsync(
+            defaultChannelName,
+            ChatCapability.AudioOnly);
+
+        Debug.Log($"[Vivox] Joined channel: {defaultChannelName}");
+    }
+}
+```
+
+---
+
+## Step 7 — 마이크 인식 확인 (코드 추가)
+
+> Step 6 까지 작성한 코드에 **마이크 목록 출력 메서드 + Update() 의 M 키 한 줄** 을 추가한다.
+
+### 7-1. 추가할 메서드 한 개
+
+`JoinDefaultChannelAsync()` 의 아래에 추가:
+
+```csharp
     // ---------------------------------------------------------------------
     // LogInputDevices — Vivox 가 인식한 마이크 입력 장치를 모두 Console 출력
     // 현재 활성(Active) 장치도 함께 표시해서 어떤 마이크가 사용 중인지 확인.
@@ -404,11 +529,60 @@ public class VivoxManager : MonoBehaviour
             Debug.Log($"  - {dev.DeviceName} (Active={isActive})");
         }
     }
+```
 
-    // =====================================================================
-    // 4) Echo 채널 (Step 8 — 청각 검증)
-    // =====================================================================
+### 7-2. Update() 에 M 키 한 줄 추가
 
+기존 `Update()` 안에 한 줄 추가:
+
+```csharp
+    async void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L)) await LoginAsync();
+        if (Input.GetKeyDown(KeyCode.J)) await JoinDefaultChannelAsync();
+        if (Input.GetKeyDown(KeyCode.M)) LogInputDevices();   // ← 이 한 줄 추가
+    }
+```
+
+### 7-3. 검증 절차
+
+`L` → `J` 이후 또는 그냥 `M` 키 단독으로:
+
+1. **`M` 키** 누르기 → Console 에 마이크 목록 + 현재 Active 표시:
+   ```
+   [Vivox] 입력 장치 목록:
+     - Default System Device (Active=True)
+     - Microphone (Realtek(R) Audio) (Active=False)
+     - ...
+   ```
+
+📸 **L2_12.png** — Console 에 마이크 목록 출력된 상태
+
+> 💡 **장치 변경 API**: `await VivoxService.Instance.SetActiveInputDeviceAsync(device);` — 응용 질문 Q1 에서 다룬다.
+
+### 7-4. ✅ 지금까지의 전체 코드 (Step 7 누적)
+
+Step 6 누적본에 `LogInputDevices()` + Update 의 M 키 한 줄이 추가된 모습. (Step 8 끝에 모든 단계가 합쳐진 최종본을 한 번 더 보여준다.)
+
+---
+
+## Step 8 — 방법 A: Echo 채널 (청각 검증, 코드 추가)
+
+> Step 7 까지 작성한 코드에 **Echo 채널 입장/나가기 메서드 두 개 + Update() 의 E/X 두 줄** 을 추가한다. Vivox 의 `JoinEchoChannelAsync` 는 자기 마이크 입력을 자기 헤드폰으로 즉시 재생해 주는 전용 채널 (Photon Voice 의 `DebugEchoMode` 와 같은 역할).
+
+### 8-1. SerializeField 한 개 추가
+
+기존 `displayName` 필드 아래에 다음 한 줄 추가:
+
+```csharp
+    [SerializeField] string echoChannelName = "EchoTest";  // Echo 검증 채널 이름
+```
+
+### 8-2. 추가할 메서드 두 개
+
+`LogInputDevices()` 의 아래에 두 메서드 추가:
+
+```csharp
     // ---------------------------------------------------------------------
     // JoinEchoChannelAsync — 자기 마이크 입력이 자기 헤드폰으로 즉시 재생.
     // "마이크가 인식되는가" 가장 빠른 청각 검증. 스피커로 들으면 하울링
@@ -425,7 +599,6 @@ public class VivoxManager : MonoBehaviour
 
     // ---------------------------------------------------------------------
     // LeaveEchoChannelAsync — Echo 채널 빠져나오기.
-    // 실제 배포 시 자기 음성은 자기에게 안 들리는 게 자연스러우니
     // 검증이 끝나면 X 키로 나가 두는 습관을 들인다.
     // ---------------------------------------------------------------------
     public async Task LeaveEchoChannelAsync()
@@ -433,95 +606,149 @@ public class VivoxManager : MonoBehaviour
         await VivoxService.Instance.LeaveChannelAsync(echoChannelName);
         Debug.Log($"[Vivox] Echo channel left: {echoChannelName}");
     }
-}
 ```
 
-### 5-2. VivoxManager 빈 GameObject 생성
+### 8-3. Update() 에 E/X 키 두 줄 추가
 
-씬에 `VivoxManager` 라는 빈 GameObject 생성 → 위 스크립트 부착.
+```csharp
+    async void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L)) await LoginAsync();
+        if (Input.GetKeyDown(KeyCode.J)) await JoinDefaultChannelAsync();
+        if (Input.GetKeyDown(KeyCode.M)) LogInputDevices();
+        if (Input.GetKeyDown(KeyCode.E)) await JoinEchoChannelAsync();   // ← 추가
+        if (Input.GetKeyDown(KeyCode.X)) await LeaveEchoChannelAsync();  // ← 추가
+    }
+```
 
-Inspector 에서:
-- **Default Channel Name**: `Lobby`
-- **Display Name**: `Astronaut`
-- **Echo Channel Name**: `EchoTest` (기본값 그대로)
-
-📸 **L2_10.png** — VivoxManager Inspector (DefaultChannelName · DisplayName · EchoChannelName)
-
-### 5-3. 초기화 검증
-
-Play → Console 에 `[Vivox] Initialized. PlayerId=...` 출력 확인.
-
-> 💡 **자주 나는 에러**:
-> - `Vivox service is not active in your project` → Dashboard 의 Vivox 활성화 또는 자격 증명 발급 누락
-> - `AuthenticationException` → Authentication 패키지 미설치 또는 Player Authentication 미활성
-> - `Cannot link cloud project` → Project Settings > Services 의 프로젝트 연결 누락
-
----
-
-## Step 6 — 로그인 + 채널 입장 검증 (코드 추가 없음)
-
-> Step 5 의 통합 코드에 `L` / `J` 키 바인딩이 이미 포함되어 있다. 이번 단계는 **Play 모드에서 키를 누르고 Console 로그만 확인**한다.
-
-### 6-1. 검증 절차
-
-1. Unity 에디터에서 **Play ▶️** 클릭
-2. 잠시 후 Console 에 `[Vivox] Initialized. PlayerId=...` 가 한 번 뜨는지 확인
-3. **Game 뷰를 한 번 클릭** (포커스 잡기) — 안 하면 키 입력이 안 잡힘
-4. **`L` 키** 누르기 → Console 에 다음 줄이 떠야 정상:
-   ```
-   [Vivox] Logged in as Astronaut_xxxx
-   ```
-5. **`J` 키** 누르기 → Console 에 다음 줄이 떠야 정상:
-   ```
-   [Vivox] Joined channel: Lobby
-   ```
-
-📸 **L2_11.png** — Console 에 `Initialized` + `Logged in` + `Joined channel` 세 줄이 차례로 출력된 상태
-
-> ⚠️ Scene 뷰가 활성화된 상태에서는 키 입력이 들어오지 않는다. 반드시 Game 뷰를 클릭한 다음 키를 누른다.
-
----
-
-## Step 7 — 마이크 인식 확인 (코드 추가 없음)
-
-> Step 5 의 통합 코드에 `M` 키 바인딩 + `LogInputDevices()` 가 이미 포함되어 있다.
-
-### 7-1. 검증 절차
-
-`L` → `J` 이후 또는 그냥 `M` 키 단독으로:
-
-1. **`M` 키** 누르기 → Console 에 마이크 목록 + 현재 Active 표시:
-   ```
-   [Vivox] 입력 장치 목록:
-     - Default System Device (Active=True)
-     - Microphone (Realtek(R) Audio) (Active=False)
-     - ...
-   ```
-
-📸 **L2_12.png** — Console 에 마이크 목록 출력된 상태
-
-> 💡 **장치 변경 API**: `await VivoxService.Instance.SetActiveInputDeviceAsync(device);` — 응용 질문 Q1 에서 다룬다.
-
----
-
-## Step 8 — 방법 A: Echo 채널 (청각 검증, 코드 추가 없음)
-
-> Step 5 의 통합 코드에 `E` / `X` 키 바인딩 + `JoinEchoChannelAsync()` · `LeaveEchoChannelAsync()` 가 이미 포함되어 있다. Vivox 의 `JoinEchoChannelAsync` 는 자기 마이크 입력을 자기 헤드폰으로 즉시 재생해 주는 전용 채널 (Photon Voice 의 `DebugEchoMode` 와 같은 역할).
-
-### 8-1. 검증 절차
+### 8-4. 검증 절차
 
 1. **헤드폰 착용** (반드시. 스피커로 들으면 하울링/피드백 루프 위험)
-2. Play → `L` 키 (로그인)
-3. **`E` 키** 누르기 → Console 에 `[Vivox] Echo channel joined: EchoTest` 출력
-4. 잠시 후 자기 목소리로 말하기 → **헤드폰에 자기 음성이 들리면 OK**
+2. Inspector 의 `VivoxManager` 에 새로 생긴 **Echo Channel Name** 필드가 `EchoTest` 로 채워져 있는지 확인
+3. Play → `L` 키 (로그인)
+4. **`E` 키** 누르기 → Console 에 `[Vivox] Echo channel joined: EchoTest` 출력
+5. 잠시 후 자기 목소리로 말하기 → **헤드폰에 자기 음성이 들리면 OK**
+6. 검증 끝나면 **`X` 키** 로 Echo 채널 나가기. Console 에 `[Vivox] Echo channel left: EchoTest` 출력
 
 📸 **L2_13.png** — Echo channel joined 로그 + 헤드폰으로 자기 음성 확인 중인 화면
 
-### 8-2. 검증 완료 후 X 키
-
-검증이 끝나면 `X` 키로 Echo 채널 나가기. Console 에 `[Vivox] Echo channel left: EchoTest` 출력.
-
 > 실제 배포 시 자기 음성은 자기에게 안 들리는 게 자연스럽다. Echo 는 검증용으로만 쓰고 평소엔 끄는 습관을 들인다.
+
+### 8-5. ✅ 지금까지의 전체 코드 (Step 8 누적 = 최종 통합본)
+
+```csharp
+// =============================================================================
+// VivoxManager.cs — Vivox 음성 SDK 의 초기화 / 로그인 / 채널 입장 / 마이크 인식 /
+//                   Echo 검증을 한 곳에서 담당하는 매니저.
+// =============================================================================
+
+using System;
+using System.Threading.Tasks;
+using Unity.Services.Authentication;
+using Unity.Services.Core;
+using Unity.Services.Vivox;
+using UnityEngine;
+
+public class VivoxManager : MonoBehaviour
+{
+    public static VivoxManager Instance { get; private set; }
+
+    [SerializeField] string defaultChannelName = "Lobby";
+    [SerializeField] string displayName = "Player";
+    [SerializeField] string echoChannelName = "EchoTest";
+
+    public bool IsLoggedIn =>
+        VivoxService.Instance != null && VivoxService.Instance.IsLoggedIn;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    async void Start()
+    {
+        await InitializeAsync();
+    }
+
+    async void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.L)) await LoginAsync();
+        if (Input.GetKeyDown(KeyCode.J)) await JoinDefaultChannelAsync();
+        if (Input.GetKeyDown(KeyCode.M)) LogInputDevices();
+        if (Input.GetKeyDown(KeyCode.E)) await JoinEchoChannelAsync();
+        if (Input.GetKeyDown(KeyCode.X)) await LeaveEchoChannelAsync();
+    }
+
+    public async Task InitializeAsync()
+    {
+        try
+        {
+            if (UnityServices.State != ServicesInitializationState.Initialized)
+                await UnityServices.InitializeAsync();
+
+            if (!AuthenticationService.Instance.IsSignedIn)
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+
+            await VivoxService.Instance.InitializeAsync();
+
+            Debug.Log($"[Vivox] Initialized. PlayerId={AuthenticationService.Instance.PlayerId}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[Vivox] Init failed: {e.Message}");
+        }
+    }
+
+    public async Task LoginAsync()
+    {
+        var options = new LoginOptions
+        {
+            DisplayName = displayName + "_" + UnityEngine.Random.Range(1000, 9999),
+            EnableTTS = false,
+        };
+
+        await VivoxService.Instance.LoginAsync(options);
+        Debug.Log($"[Vivox] Logged in as {options.DisplayName}");
+    }
+
+    public async Task JoinDefaultChannelAsync()
+    {
+        await VivoxService.Instance.JoinGroupChannelAsync(
+            defaultChannelName,
+            ChatCapability.AudioOnly);
+
+        Debug.Log($"[Vivox] Joined channel: {defaultChannelName}");
+    }
+
+    public void LogInputDevices()
+    {
+        Debug.Log("[Vivox] 입력 장치 목록:");
+
+        foreach (var dev in VivoxService.Instance.AvailableInputDevices)
+        {
+            bool isActive = (dev == VivoxService.Instance.ActiveInputDevice);
+            Debug.Log($"  - {dev.DeviceName} (Active={isActive})");
+        }
+    }
+
+    public async Task JoinEchoChannelAsync()
+    {
+        await VivoxService.Instance.JoinEchoChannelAsync(
+            echoChannelName,
+            ChatCapability.AudioOnly);
+
+        Debug.Log($"[Vivox] Echo channel joined: {echoChannelName}");
+    }
+
+    public async Task LeaveEchoChannelAsync()
+    {
+        await VivoxService.Instance.LeaveChannelAsync(echoChannelName);
+        Debug.Log($"[Vivox] Echo channel left: {echoChannelName}");
+    }
+}
+```
 
 ---
 
