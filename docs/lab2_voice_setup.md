@@ -101,16 +101,29 @@ com.unity.services.vivox
 
 > 💡 **버전 메모**: 16.x 가 UGS Dashboard 연동을 지원하는 라인 (이전 16.0.0 미만은 Vivox Developer Portal 기반 deprecated). `Add by name` 만으로 최신 16.x 가 자동 설치된다.
 
-### 3-3. 의존성 자동 설치 확인
+### 3-3. 의존성 확인
 
-Vivox 패키지가 다음 의존성을 함께 들여온다:
+Vivox 패키지가 다음을 자동으로 함께 들여온다:
 
-- `com.unity.services.core` (UGS 코어)
-- `com.unity.services.authentication` (UGS 인증)
+- `com.unity.services.core` (UGS 코어) ✅
+
+> ⚠️ **함정**: `com.unity.services.authentication` 은 Vivox 16.x 의존성에 들어 있지 않다. 별도로 직접 설치해야 한다 (다음 3-4).
 
 Console 에 빨간 에러 없으면 OK.
 
 📸 **L2_06.png** — Package Manager 에 `Vivox 16.x.x` 가 Installed 로 표시된 상태
+
+### 3-4. Authentication 패키지 별도 설치 (필수)
+
+> Vivox 가 UGS 인증 토큰을 사용하기 때문에 Authentication 패키지가 반드시 함께 깔려 있어야 한다. 안 깔면 Step 4-3 에서 Vivox 패널에 노란 경고:
+> `The Authentication Package has not been imported.`
+> 가 뜨고, 런타임에서도 `AuthenticationException` 으로 초기화가 실패한다.
+
+Package Manager 좌측에서 `Unity Registry` 선택 → 검색창에 `auth` 입력 → **Authentication** (Technical Name: `com.unity.services.authentication`, 3.6.1 이상) 선택 → 우측 `Install`.
+
+> 💡 또는 좌상단 `+` > `Install package by name...` 에 `com.unity.services.authentication` 직접 입력해도 같은 결과.
+
+📸 **L2_06b.png** — Package Manager 의 Authentication 패키지 (3.6.1) 가 Install 또는 Installed 상태로 표시된 화면
 
 ---
 
@@ -141,7 +154,25 @@ Dashboard 좌측 메뉴 `Products`:
 
 Unity 메뉴 `Edit > Project Settings > Services` → `Link to existing Unity Cloud Project` → Organization · Project 선택 (4-1 에서 만든 `Ch17_AdvanceCourse`) → `Link`.
 
+연결되면 우측 패널에 다음이 표시되어 있어야 한다.
+- **Project Name**: `Ch17_AdvanceCourse`
+- **Unity Organization**: 본인 조직
+- **Unity Project ID**: UUID 표시 + `Unlink project` 버튼
+- 좌측 트리에 `Services > Vivox` 항목 자동 추가
+
 📸 **L2_09.png** — Project Settings > Services 에 Project ID 가 연결된 모습
+
+### 4-4. Vivox 패널 확인
+
+좌측 트리 `Services > Vivox` 클릭 → 우측에 `Environment Configuration` 섹션이 보임:
+
+- **Server / Domain / Token Issuer / Token Key**: 모두 비어 있음 ✅ (UGS Dashboard 자동 인증 방식에서는 빈 칸이 정상. Test Mode 켜는 학습 경로에서만 채움)
+- **Test Mode**: OFF ✅
+- 페이지 하단에 **노란 경고가 없어야 한다**.
+
+> ⚠️ 만약 `The Authentication Package has not been imported.` 노란 경고가 보이면 Step 3-4 의 Authentication 패키지 설치가 빠진 상태다. 돌아가서 설치 후 Unity 를 재시작.
+
+📸 **L2_09b.png** — Vivox 패널의 Environment Configuration 섹션 (빈 칸 + 노란 경고 없음)
 
 ---
 
@@ -433,8 +464,10 @@ public class MicVolumeMeter : MonoBehaviour
 ## 정상 동작 체크리스트
 
 - [ ] Stylized Astronaut 가 씬에 PlayerCharacter 이름으로 존재 (Generic rig, URP 머티리얼)
-- [ ] Unity Dashboard 에 `Ch17_AdvanceCourse` 프로젝트 존재 + **Vivox · Authentication 둘 다 Active**
+- [ ] **`com.unity.services.vivox` (16.x) + `com.unity.services.authentication` (3.6.1+) 두 패키지 모두 설치됨** (Package Manager > In Project)
+- [ ] Unity Dashboard 에 `Ch17_AdvanceCourse` 프로젝트 존재 + **Vivox · Player Authentication 둘 다 Active**
 - [ ] Project Settings > Services 에서 프로젝트가 Unity Cloud 와 연결됨
+- [ ] Project Settings > Services > Vivox 패널에 노란 “Authentication Package not imported” 경고 없음
 - [ ] Play 시 Console 에 `[Vivox] Initialized. PlayerId=...` 출력
 - [ ] `L` 키 → Vivox 로그인 성공 로그
 - [ ] `J` 키 → `Lobby` 채널 입장 성공 로그
