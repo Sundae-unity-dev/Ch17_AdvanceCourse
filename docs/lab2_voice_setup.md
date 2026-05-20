@@ -231,70 +231,126 @@ Vivox 설정 가이드 마법사는 Vivox 활성화까지만 처리한다. **Pla
 `Assets/2.Scripts/1.Voice/VivoxManager.cs` 생성:
 
 ```csharp
+// =============================================================================
+// VivoxManager.cs — Vivox 음성 SDK 의 초기화 / 로그인 / 채널 입장을 담당
+// -----------------------------------------------------------------------------
+// 학습 포인트:
+// 1) Unity Gaming Services 의 초기화는 반드시 정해진 순서를 따라야 한다.
+//    UnityServices  →  AuthenticationService  →  VivoxService
+// 2) 세 단계 모두 await 가 필요한 비동기 작업이라 async/await 패턴을 쓴다.
+// 3) 어디서든 VivoxManager.Instance.XXX 로 접근할 수 있도록 싱글톤으로 만든다.
+// =============================================================================
+
 using System;
 using System.Threading.Tasks;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
-using Unity.Services.Vivox;
+using Unity.Services.Authentication;   // 익명 로그인 (SignInAnonymouslyAsync)
+using Unity.Services.Core;             // UnityServices.InitializeAsync()
+using Unity.Services.Vivox;            // VivoxService, LoginOptions, ChatCapability
 using UnityEngine;
 
 public class VivoxManager : MonoBehaviour
 {
+    // ---------------------------------------------------------------------
+    // 싱글톤 — 다른 스크립트에서 VivoxManager.Instance 로 접근
+    // ---------------------------------------------------------------------
     public static VivoxManager Instance { get; private set; }
 
-    [SerializeField] string defaultChannelName = "Lobby";
-    [SerializeField] string displayName = "Player";
+    // ---------------------------------------------------------------------
+    // Inspector 에서 편집할 수 있도록 SerializeField 로 노출하는 설정 값
+    // ---------------------------------------------------------------------
+    [SerializeField] string defaultChannelName = "Lobby";  // 기본 입장 채널 이름
+    [SerializeField] string displayName = "Player";        // Vivox 표시 이름 (접두어로 사용)
 
-    public bool IsLoggedIn => VivoxService.Instance != null && VivoxService.Instance.IsLoggedIn;
+    // ---------------------------------------------------------------------
+    // 외부에서 "지금 로그인되어 있나?" 를 확인할 때 쓰는 읽기 전용 프로퍼티
+    // ---------------------------------------------------------------------
+    public bool IsLoggedIn =>
+        VivoxService.Instance != null && VivoxService.Instance.IsLoggedIn;
 
+    // ---------------------------------------------------------------------
+    // Awake — 게임 오브젝트가 생성될 때 가장 먼저 호출되는 Unity 콜백
+    // 싱글톤이 이미 있다면 자신을 파괴해서 중복을 막고,
+    // 처음이라면 자신을 Instance 로 등록하고 씬 전환에도 살아남게 한다.
+    // ---------------------------------------------------------------------
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(gameObject); // 씬을 바꿔도 매니저가 사라지지 않게 보존
     }
 
+    // ---------------------------------------------------------------------
+    // Start — 첫 프레임 직전에 호출. async 로 선언해서 초기화 비동기 호출.
+    // ---------------------------------------------------------------------
     async void Start()
     {
         await InitializeAsync();
     }
 
+    // ---------------------------------------------------------------------
+    // InitializeAsync — UGS / Auth / Vivox 를 차례로 초기화
+    // 순서를 반드시 지켜야 한다. 한 단계라도 어긋나면 다음 단계가 토큰을
+    // 받지 못해 AuthenticationException 또는 Credentials 오류가 발생한다.
+    // ---------------------------------------------------------------------
     public async Task InitializeAsync()
     {
         try
         {
+            // 1) Unity Gaming Services 코어 초기화 (한 번만 필요)
             if (UnityServices.State != ServicesInitializationState.Initialized)
                 await UnityServices.InitializeAsync();
 
+            // 2) 익명 로그인 — 별도 계정 없이 UGS 가 임시 PlayerId 발급
             if (!AuthenticationService.Instance.IsSignedIn)
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
 
+            // 3) Vivox 서비스 초기화 — 이때 Dashboard 의 Vivox 자격 증명을 자동으로 가져온다
             await VivoxService.Instance.InitializeAsync();
 
+            // 정상이라면 PlayerId 까지 함께 출력 (Console 에서 식별용)
             Debug.Log($"[Vivox] Initialized. PlayerId={AuthenticationService.Instance.PlayerId}");
         }
         catch (Exception e)
         {
+            // 실패 시 빨간 에러로 알려서 어디서 멈췄는지 추적 가능하게 한다
             Debug.LogError($"[Vivox] Init failed: {e.Message}");
         }
     }
 
+    // ---------------------------------------------------------------------
+    // LoginAsync — Vivox 에 표시 이름(DisplayName) 으로 로그인
+    // 같은 PC 에서 여러 번 테스트해도 충돌이 없도록 4자리 난수를 붙인다.
+    // ---------------------------------------------------------------------
     public async Task LoginAsync()
     {
         var options = new LoginOptions
         {
+            // 예: "Astronaut_3742" 처럼 매번 다른 이름으로 로그인
             DisplayName = displayName + "_" + UnityEngine.Random.Range(1000, 9999),
-            EnableTTS = false,
+            EnableTTS = false, // 텍스트→음성 합성 기능은 끔
         };
+
         await VivoxService.Instance.LoginAsync(options);
         Debug.Log($"[Vivox] Logged in as {options.DisplayName}");
     }
 
+    // ---------------------------------------------------------------------
+    // JoinDefaultChannelAsync — Inspector 에 설정한 채널에 음성 전용으로 입장
+    // ChatCapability:
+    //   AudioOnly     → 음성만
+    //   TextOnly      → 텍스트만
+    //   TextAndAudio  → 음성 + 텍스트
+    // ---------------------------------------------------------------------
     public async Task JoinDefaultChannelAsync()
     {
         await VivoxService.Instance.JoinGroupChannelAsync(
             defaultChannelName,
             ChatCapability.AudioOnly);
+
         Debug.Log($"[Vivox] Joined channel: {defaultChannelName}");
     }
 }
