@@ -184,6 +184,19 @@ Dashboard 마법사 화면으로 돌아와 하단 `다음` 클릭.
 > 그 페이지에 보이는 **Unity Windows SDK / Unity Android SDK / Core Android SDK / Core Windows SDK** 등은 `com.unity.services.vivox` 16.x 패키지 안에 이미 네이티브 플러그인 (`VivoxNative.dll`·`libVivoxNative.so`) 으로 포함되어 있어 별도로 받지 않아도 된다.
 > `패키지 설치` 버튼은 Unity Editor 로 Deep Link 를 보내지만 자주 전달이 안 된다. 눌렀을 때 아무 반응 없어도 무시. **Unreal 엔진이나 Switch/PS 콘솔 빌드** 같은 특수 경우에만 의미가 있다.
 
+#### 직접 확인하고 싶다면 (검증)
+
+Unity 의 Project 창 상단 검색창에 정확히 입력:
+```
+VivoxNative
+```
+검색 범위를 **`In Packages`** 로 바꾸면 다음 두 파일이 검색된다.
+
+- `VivoxNative.dll` (Windows 용)
+- `libVivoxNative.so` (Android 용)
+
+둘 다 `com.unity.services.vivox` 패키지의 `Runtime/Plugins/` 하위에 이미 존재. Dashboard 에서 받는 것과 동일한 내용물이다.
+
 ### 4-6. Player Authentication 활성화 (마법사 외 별도)
 
 Vivox 설정 가이드 마법사는 Vivox 활성화까지만 처리한다. **Player Authentication 은 별도로 활성화** 해야 한다.
