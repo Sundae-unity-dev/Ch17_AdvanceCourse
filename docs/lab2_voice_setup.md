@@ -785,52 +785,79 @@ public class VivoxManager : MonoBehaviour
 
 ```
 Canvas (HUD)
-└─ VolumeMeter (Panel, 좌상단)
-   ├─ Background (Image, 어두운 회색, 폭 200·높이 30)
-   └─ Fill (Image, 초록색, 동일 위치)
+└─ BackGround (Image, 어두운 회색 막대, 폭 200·높이 30 정도, 좌상단)
+   └─ Fill   (Image, 강조 색상 막대, BackGround 와 같은 크기로 덮어씌움)
 ```
 
-📸 **L2_14.png** — VolumeMeter UI 의 Hierarchy + 좌상단 위치
+> 💡 Fill 을 BackGround 의 **자식**으로 두면 Fill 의 RectTransform 이 BackGround 기준 상대 좌표가 되어, BackGround 의 `Anchors > Stretch` 로 BackGround 영역을 가득 채우게 잡으면 자동으로 막대 형태가 완성된다.
+>
+> 좌측 상단에 위치시키려면 BackGround 의 Anchors 를 `Top Left` 로 잡고 Position `(20, -20, 0)` 정도가 무난.
 
-### 9-2. Fill Image 설정
+> 🎨 **추천 sprite (Simple Cartoon UI 등의 키트 사용 시)**:
+> - BackGround → `ProgressBar Fill Grey` (회색)
+> - Fill → 강의 톤에 맞춰 `ProgressBar Fill Purple` 또는 `Orange` · `Green` 등 강조색
 
-- **Image Type**: `Filled`
+📸 **L2_14.png** — `Canvas > BackGround > Fill` Hierarchy + 좌상단 배치 모습
+
+### 9-2. BackGround Image 설정
+
+- **Source Image**: 회색 막대 sprite (예: ProgressBar Fill Grey) 또는 None + Color 어두운 회색
+- **Image Type**: `Sliced` 또는 `Simple` (배경은 채울 필요 없음)
+- **Color**: 기본 흰색 그대로 (sprite 가 회색이라 그대로 회색으로 보임)
+
+### 9-3. Fill Image 설정
+
+- **Source Image**: 강조색 막대 sprite (예: ProgressBar Fill Purple)
+- **Image Type**: `Filled` ⭐ 필수
 - **Fill Method**: `Horizontal`
 - **Fill Origin**: `Left`
-- **Fill Amount**: `0` (초기)
+- **Fill Amount**: `0` (초기 — 코드가 매 프레임 덮어쓰므로 어떤 값이어도 OK)
 
-### 9-3. MicVolumeMeter 스크립트
+> ⚠️ Fill 의 RectTransform Anchors 를 **`Stretch` (양쪽 모두 늘이기)** 로 두고 Left/Top/Right/Bottom 을 모두 `0` 으로 설정하면 BackGround 영역을 정확히 덮는다.
 
-`Assets/2.Scripts/1.Voice/MicVolumeMeter.cs`:
+### 9-4. MicVolumeMeter 스크립트
+
+`Assets/2.Scripts/1.Voice/MicVolumeMeter.cs` 생성 후 아래 코드 전체를 통째로 붙여넣기.
 
 ```csharp
+// =============================================================================
+// MicVolumeMeter.cs — 자기 마이크 음량을 막대 그래프(fillAmount)로 시각화
+// -----------------------------------------------------------------------------
+// 학습 포인트:
+// 1) Vivox 의 VivoxParticipant.AudioEnergy (0.0 ~ 1.0) 가 음성 세기.
+// 2) 자기 자신은 IsSelf == true 인 참가자로 표현된다.
+// 3) ParticipantAddedToChannel / Removed 이벤트로 참가자 추가·제거 추적.
+// 4) Update() 에서 selfParticipant.AudioEnergy 를 읽어 Image.fillAmount 에 반영.
+// =============================================================================
+
 using Unity.Services.Vivox;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MicVolumeMeter : MonoBehaviour
 {
-    [SerializeField] Image fillBar;
-    [SerializeField] float boost = 3f;
+    [SerializeField] Image fillBar;   // 채워질 막대 (Fill Image)
+    [SerializeField] float boost = 3f; // 시각적으로 변화를 키워주는 배율
 
+    // 자기 자신(IsSelf=true) 을 한 번 잡으면 캐시해두고 매 프레임 AudioEnergy 를 읽는다.
     VivoxParticipant selfParticipant;
 
     void OnEnable()
     {
-        VivoxService.Instance.ParticipantAddedToChannel += OnParticipantAdded;
+        VivoxService.Instance.ParticipantAddedToChannel   += OnParticipantAdded;
         VivoxService.Instance.ParticipantRemovedFromChannel += OnParticipantRemoved;
     }
 
     void OnDisable()
     {
         if (VivoxService.Instance == null) return;
-        VivoxService.Instance.ParticipantAddedToChannel -= OnParticipantAdded;
+        VivoxService.Instance.ParticipantAddedToChannel   -= OnParticipantAdded;
         VivoxService.Instance.ParticipantRemovedFromChannel -= OnParticipantRemoved;
     }
 
     void OnParticipantAdded(VivoxParticipant p)
     {
-        if (p.IsSelf) selfParticipant = p;
+        if (p.IsSelf) selfParticipant = p;   // 자기 자신만 시각화 대상
     }
 
     void OnParticipantRemoved(VivoxParticipant p)
@@ -840,21 +867,29 @@ public class MicVolumeMeter : MonoBehaviour
 
     void Update()
     {
-        if (selfParticipant == null) { fillBar.fillAmount = 0f; return; }
+        if (selfParticipant == null)
+        {
+            fillBar.fillAmount = 0f;
+            return;
+        }
+
+        // AudioEnergy(0~1) 에 boost 를 곱해 살짝 키운 뒤 fillAmount 에 반영
         float energy = (float)selfParticipant.AudioEnergy;
         fillBar.fillAmount = Mathf.Clamp01(energy * boost);
     }
 }
 ```
 
-### 9-4. 컴포넌트 부착
+### 9-5. 컴포넌트 부착
 
-`VolumeMeter` GameObject 에 `MicVolumeMeter` 추가, Inspector 에서:
-- **Fill Bar** ← Fill Image
+**`BackGround` GameObject** 에 `MicVolumeMeter` 컴포넌트 추가 (Add Component → MicVolumeMeter 검색). Inspector 에서:
+- **Fill Bar** 슬롯 → Hierarchy 의 **Fill** 오브젝트 드래그해서 연결
 
-📸 **L2_15.png** — MicVolumeMeter Inspector 필드 입력 완료
+> 💡 부착 위치는 Canvas 든 BackGround 든 다른 빈 오브젝트든 상관없다. 한 곳이면 충분하고, 의미상 BackGround 에 두는 게 자연스럽다 (UI 위치와 매니저 위치가 묶임).
 
-### 9-5. 실행 + 말하기
+📸 **L2_15.png** — MicVolumeMeter Inspector 필드 입력 완료 + Fill Bar 슬롯 연결된 모습
+
+### 9-6. 실행 + 말하기
 
 `L` → `E` (Echo 채널) → 말하면 막대가 차오르고, 입 다물면 0 으로 돌아옴.
 
@@ -864,6 +899,7 @@ public class MicVolumeMeter : MonoBehaviour
 > - 채널에 입장하지 않은 상태 (먼저 `L` → `E` 또는 `J`)
 > - Windows 마이크 권한 / 장치 연결 / `VivoxService.Instance.AvailableInputDevices` 비어 있지 않은지 확인
 > - `selfParticipant == null` — Console 로그 추가해 `OnParticipantAdded` 가 호출됐는지 확인
+> - Fill 의 Image Type 이 `Filled` 가 아닌 경우 → 막대가 보이긴 하지만 fillAmount 가 무시됨
 
 ---
 
