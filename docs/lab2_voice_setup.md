@@ -350,6 +350,29 @@ Play → Console 에 `[Vivox] Initialized. PlayerId=...` 출력 확인.
 
 > Step 5 의 코드에 **두 메서드 + Update() 키 바인딩** 을 추가한다. 추가가 끝나면 Step 6 끝의 "✅ 지금까지의 전체 코드" 와 본인 코드를 한 번 비교한다.
 
+### 6-0. Active Input Handling 을 "Both" 로 변경 (선결 작업)
+
+Quantum 3 가 들어 있는 프로젝트는 Player Settings 의 **Active Input Handling** 이 자동으로 `Input System Package (New)` 로 설정되어 있다. 이 상태에서 구식 `UnityEngine.Input.GetKeyDown()` 을 호출하면 다음 에러가 발생한다.
+
+```
+InvalidOperationException: You are trying to read Input using the UnityEngine.Input class,
+but you have switched active Input handling to Input System package in Player Settings.
+```
+
+가장 간단한 우회는 두 시스템을 모두 활성화하는 **`Both`** 설정.
+
+1. 메뉴 `Edit > Project Settings > Player`
+2. 우측 패널에서 **`Other Settings`** 섹션 펼치기
+3. `Configuration` 그룹의 **`Active Input Handling`** → 드롭다운에서 **`Both`** 선택
+4. 팝업 “Changing this setting requires a restart of the editor” → **`Apply`** 클릭
+5. Unity 자동 재시작 + 컴파일 완료까지 대기
+6. Console 에 빨간 에러가 없는지 확인
+
+> 💡 **왜 코드를 안 바꾸고 설정만 바꾸는가**
+> 강의 검증 단계에서는 디버그 키만 잠깐 쓰기 때문에 구식 `UnityEngine.Input` 으로 충분하다. 새 Input System 으로 코드를 마이그레이션하는 것은 **응용 질문 Q4** 에서 학생이 직접 도전한다.
+
+📸 **L2_10b.png** — Player Settings 의 Active Input Handling 이 Both 로 설정된 상태
+
 ### 6-1. 추가할 메서드 두 개
 
 `VivoxManager` 클래스 안에 다음 두 메서드를 추가한다 (`InitializeAsync()` 메서드의 아래에 붙여 넣으면 자연스러움).
@@ -884,6 +907,34 @@ public class MicVolumeMeter : MonoBehaviour
 - Quantum 룸 이름과 동일한 문자열을 Vivox 채널명으로 사용 (`JoinGroupChannelAsync(roomName, ...)`)
 - 룸 이동 시 `await VivoxService.Instance.LeaveChannelAsync(oldRoom)` 후 새 룸 Join
 - `ActiveChannels` 딕셔너리로 현재 입장한 채널 확인
+
+### Q4. 디버그 키 바인딩을 새 Input System API 로 마이그레이션 해보기 ⭐
+
+> Step 6-0 에서 우리는 Player Settings 의 Active Input Handling 을 `Both` 로 바꿔서 구식 `UnityEngine.Input` 을 그대로 썼다. 이번엔 거꾸로 **구식 코드를 새 Input System API 로 다시 작성** 해보자. Quantum 3 가 사용하는 현대적인 입력 시스템에 직접 손을 대 보는 학습 과제.
+
+**도전 과제**:
+1. Player Settings 의 Active Input Handling 을 다시 `Input System Package (New)` 로 돌리기 (또는 그대로 `Both` 두고 새 API 도 같이 써보기)
+2. `VivoxManager.cs` 의 `Update()` 안의 5개 키 분기 (L · J · M · E · X) 를 **새 Input System API** 로 다시 작성
+3. 동작 확인 (Step 6~8 의 검증 절차 그대로)
+
+**힌트**:
+- `using UnityEngine.InputSystem;` 추가
+- `Keyboard.current` 가 키보드 장치 인스턴스 (없으면 `null` 반환 가능 → 체크 필요)
+- 각 키는 `Keyboard.current.lKey`, `Keyboard.current.jKey` 처럼 접근
+- "이번 프레임에 눌렸는가" 는 `.wasPressedThisFrame` 프로퍼티
+- 예시 시그니처:
+  ```csharp
+  using UnityEngine.InputSystem;
+
+  async void Update()
+  {
+      if (Keyboard.current == null) return;
+      if (Keyboard.current.lKey.wasPressedThisFrame) await LoginAsync();
+      // ... 나머지 J · M · E · X 동일 패턴
+  }
+  ```
+
+**더 나아가기**: Input Actions 자산을 만들고 `PlayerInput` 컴포넌트로 키 바인딩을 외부 자산으로 분리하면, 코드를 건드리지 않고도 키 매핑을 바꿀 수 있다. (이건 L3 의 Push-to-Talk 키 바인딩에서 다시 다룬다.)
 
 ---
 
