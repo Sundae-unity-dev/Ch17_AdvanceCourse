@@ -241,6 +241,11 @@ MonoBehaviour:
   defaultChannelName: Lobby
   displayName: Player
   echoChannelName: EchoTest
+  pushToTalkKey: 118
+  spatialChannelName: World3D
+  audibleDistance: 32
+  conversationalDistance: 3
+  audioFadeIntensityByDistance: 1
 --- !u!1 &149102359
 GameObject:
   m_ObjectHideFlags: 0
@@ -921,6 +926,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MicVolumeMeter
   fillBar: {fileID: 13305599}
   boost: 3
+  attackSpeed: 25
+  releaseSpeed: 6
 --- !u!4 &63285188855074944
 Transform:
   m_ObjectHideFlags: 0
@@ -1506,6 +1513,7 @@ GameObject:
   m_Component:
   - component: {fileID: 63285188855074962}
   - component: {fileID: 63285188864966524}
+  - component: {fileID: 63285188864966525}
   m_Layer: 0
   m_Name: PlayerCharacter
   m_TagString: Untagged
@@ -1885,6 +1893,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &63285188864966525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 63285188855565490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dd02afce7ac91b4f88e40759d9d0675, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VivoxPositionalSync
+  listenerOrigin: {fileID: 63285188855074962}
+  channelName: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

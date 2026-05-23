@@ -1,15 +1,18 @@
 // =============================================================================
 // VivoxManager.cs — Vivox 음성 SDK 의 초기화 / 로그인 / 채널 입장 / 마이크 인식 /
-//                   Echo 검증 / Push-to-Talk 를 한 곳에서 담당하는 매니저.
+//                   Echo 검증 / Push-to-Talk / Spatial Audio 를 담당하는 매니저.
 // -----------------------------------------------------------------------------
 // 학습 포인트:
 // 1) Unity Gaming Services 의 초기화는 반드시 정해진 순서를 따라야 한다.
 //    UnityServices  →  AuthenticationService  →  VivoxService
 // 2) 세 단계 모두 await 가 필요한 비동기 작업이라 async/await 패턴을 쓴다.
 // 3) 어디서든 VivoxManager.Instance.XXX 로 접근할 수 있도록 싱글톤으로 만든다.
-// 4) 검증 단계에서는 UI 대신 디버그 키 (L/J/M/E/X/V) 로 트리거한다.
+// 4) 검증 단계에서는 UI 대신 디버그 키 (L/J/M/E/X/V/P/Q) 로 트리거한다.
 // 5) 채널에 들어갔다고 곧바로 송신되지 않는다. SetChannelTransmissionModeAsync 로
 //    None / All 송신 상태를 토글한다 — 이것이 Push-to-Talk 의 핵심 원리다.
+// 6) Positional 채널은 입장만으로 끝이 아니라, 매 프레임 Set3DPosition 으로
+//    참가자 위치·방향을 알려줘야 거리·방향감 있는 음성이 살아난다.
+//    → VivoxPositionalSync.cs 가 PlayerCharacter 에 붙어 그 일을 한다.
 // =============================================================================
 
 using System;
@@ -33,6 +36,24 @@ public class VivoxManager : MonoBehaviour
     [SerializeField] string displayName = "Player";        // Vivox 표시 이름 (접두어로 사용)
     [SerializeField] string echoChannelName = "EchoTest";  // Echo 검증 채널 이름
     [SerializeField] KeyCode pushToTalkKey = KeyCode.V;    // L3 — Push-to-Talk 키
+
+    // ---------------------------------------------------------------------
+    // L4 — Spatial Audio (3D 위치 기반 음성)
+    //   spatialChannelName       : 3D 채널 이름. 같은 이름끼리 음성이 거리·방향에
+    //                              따라 자연스럽게 변하면서 들린다.
+    //   audibleDistance          : 들리기 시작하는 최대 거리 (m). 이 거리 밖이면
+    //                              볼륨 0 으로 무음.
+    //   conversationalDistance   : 원본 볼륨이 유지되는 가까운 거리 (m). 이 거리
+    //                              안에서는 100% 볼륨이고, 넘어서면 거리에 따라
+    //                              audibleDistance 까지 점점 작아진다.
+    //   audioFadeIntensityByDistance : 페이드 강도 (1.0 = 표준).
+    // ---------------------------------------------------------------------
+    [Header("L4 — Spatial Audio")]
+    [SerializeField] string spatialChannelName = "World3D";
+    [SerializeField] int audibleDistance = 32;
+    [SerializeField] int conversationalDistance = 3;
+    [SerializeField] float audioFadeIntensityByDistance = 1f;
+    public string SpatialChannelName => spatialChannelName;
 
     // ---------------------------------------------------------------------
     // 외부에서 "지금 로그인되어 있나?" 를 확인할 때 쓰는 읽기 전용 프로퍼티
@@ -73,6 +94,8 @@ public class VivoxManager : MonoBehaviour
     //   X 키       → Echo 채널 나가기           (LeaveEchoChannelAsync)
     //   V 키(눌림) → Push-to-Talk 송신 ON      (SetTransmissionAsync(true))
     //   V 키(뗌)   → Push-to-Talk 송신 OFF     (SetTransmissionAsync(false))
+    //   P 키       → Spatial (3D) 채널 입장    (JoinSpatialChannelAsync)
+    //   Q 키       → Spatial (3D) 채널 나가기  (LeaveSpatialChannelAsync)
     // 실제 게임에서는 UI 버튼으로 대체하지만, 검증 단계는 키가 가장 빠르다.
     // ---------------------------------------------------------------------
     async void Update()
@@ -82,6 +105,8 @@ public class VivoxManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.M)) LogInputDevices();
         if (Input.GetKeyDown(KeyCode.E)) await JoinEchoChannelAsync();
         if (Input.GetKeyDown(KeyCode.X)) await LeaveEchoChannelAsync();
+        if (Input.GetKeyDown(KeyCode.P)) await JoinSpatialChannelAsync();
+        if (Input.GetKeyDown(KeyCode.Q)) await LeaveSpatialChannelAsync();
 
         // L3 — V 키를 누른 순간 송신 시작, 떼는 순간 송신 차단
         if (Input.GetKeyDown(pushToTalkKey)) await SetTransmissionAsync(true);
@@ -236,5 +261,53 @@ public class VivoxManager : MonoBehaviour
         var mode = transmitting ? TransmissionMode.All : TransmissionMode.None;
         await VivoxService.Instance.SetChannelTransmissionModeAsync(mode);
         Debug.Log($"[Vivox] Transmission: {mode}");
+    }
+
+    // =====================================================================
+    // 6) Spatial Audio (L4 — Positional Channel)
+    // =====================================================================
+
+    // ---------------------------------------------------------------------
+    // JoinSpatialChannelAsync — 3D 위치 기반 음성 채널 입장.
+    //
+    // Positional 채널은 일반 그룹 채널과 달리, 입장한 참가자 각각의 위치를
+    // Vivox 에 알려주면 거리·방향에 따라 자동으로 볼륨·좌우 stereo 가 변해요.
+    //
+    // Channel3DProperties:
+    //   audibleDistance        — 들리기 시작하는 최대 거리 (이 거리 밖이면 무음).
+    //   conversationalDistance — 원본 볼륨 유지 거리 (이 거리 안은 100% 볼륨).
+    //   audioFadeIntensity     — 페이드 강도.
+    //   audioFadeModel         — 거리 감쇠 모델. InverseByDistance 가 가장 자연스러움.
+    //
+    // 위치는 채널 입장만으로 끝이 아니라, 매 프레임 Set3DPosition 으로 알려야
+    // 움직이는 캐릭터에 맞춰 소리가 바뀌어요. → VivoxPositionalSync.cs 가 담당.
+    // ---------------------------------------------------------------------
+    public async Task JoinSpatialChannelAsync()
+    {
+        var props = new Channel3DProperties(
+            audibleDistance,
+            conversationalDistance,
+            audioFadeIntensityByDistance,
+            AudioFadeModel.InverseByDistance);
+
+        await VivoxService.Instance.JoinPositionalChannelAsync(
+            spatialChannelName,
+            ChatCapability.AudioOnly,
+            props);
+
+        // PTT 와 동일하게 입장 직후 송신 차단 — V 눌러야만 들려요
+        await SetTransmissionAsync(false);
+
+        Debug.Log($"[Vivox] Joined 3D channel: {spatialChannelName} " +
+                  $"(audible={audibleDistance}m, conv={conversationalDistance}m, PTT 대기)");
+    }
+
+    // ---------------------------------------------------------------------
+    // LeaveSpatialChannelAsync — Spatial 채널 퇴장.
+    // ---------------------------------------------------------------------
+    public async Task LeaveSpatialChannelAsync()
+    {
+        await VivoxService.Instance.LeaveChannelAsync(spatialChannelName);
+        Debug.Log($"[Vivox] Spatial channel left: {spatialChannelName}");
     }
 }
