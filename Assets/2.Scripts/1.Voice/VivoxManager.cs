@@ -1,13 +1,15 @@
 // =============================================================================
 // VivoxManager.cs — Vivox 음성 SDK 의 초기화 / 로그인 / 채널 입장 / 마이크 인식 /
-//                   Echo 검증을 한 곳에서 담당하는 매니저.
+//                   Echo 검증 / Push-to-Talk 를 한 곳에서 담당하는 매니저.
 // -----------------------------------------------------------------------------
 // 학습 포인트:
 // 1) Unity Gaming Services 의 초기화는 반드시 정해진 순서를 따라야 한다.
 //    UnityServices  →  AuthenticationService  →  VivoxService
 // 2) 세 단계 모두 await 가 필요한 비동기 작업이라 async/await 패턴을 쓴다.
 // 3) 어디서든 VivoxManager.Instance.XXX 로 접근할 수 있도록 싱글톤으로 만든다.
-// 4) 검증 단계에서는 UI 대신 디버그 키 (L/J/M/E/X) 로 트리거한다.
+// 4) 검증 단계에서는 UI 대신 디버그 키 (L/J/M/E/X/V) 로 트리거한다.
+// 5) 채널에 들어갔다고 곧바로 송신되지 않는다. SetChannelTransmissionModeAsync 로
+//    None / All 송신 상태를 토글한다 — 이것이 Push-to-Talk 의 핵심 원리다.
 // =============================================================================
 
 using System;
@@ -30,6 +32,7 @@ public class VivoxManager : MonoBehaviour
     [SerializeField] string defaultChannelName = "Lobby";  // 기본 입장 채널 이름
     [SerializeField] string displayName = "Player";        // Vivox 표시 이름 (접두어로 사용)
     [SerializeField] string echoChannelName = "EchoTest";  // Echo 검증 채널 이름
+    [SerializeField] KeyCode pushToTalkKey = KeyCode.V;    // L3 — Push-to-Talk 키
 
     // ---------------------------------------------------------------------
     // 외부에서 "지금 로그인되어 있나?" 를 확인할 때 쓰는 읽기 전용 프로퍼티
@@ -63,11 +66,13 @@ public class VivoxManager : MonoBehaviour
 
     // ---------------------------------------------------------------------
     // Update — 매 프레임 호출되는 Unity 콜백. 검증용 디버그 키 바인딩.
-    //   L 키 → Vivox 로그인              (LoginAsync)
-    //   J 키 → 기본 그룹 채널 입장        (JoinDefaultChannelAsync)
-    //   M 키 → 인식된 마이크 목록 출력    (LogInputDevices)
-    //   E 키 → Echo 채널 입장 (청각 검증) (JoinEchoChannelAsync)
-    //   X 키 → Echo 채널 나가기           (LeaveEchoChannelAsync)
+    //   L 키       → Vivox 로그인              (LoginAsync)
+    //   J 키       → 기본 그룹 채널 입장        (JoinDefaultChannelAsync)
+    //   M 키       → 인식된 마이크 목록 출력    (LogInputDevices)
+    //   E 키       → Echo 채널 입장 (청각 검증) (JoinEchoChannelAsync)
+    //   X 키       → Echo 채널 나가기           (LeaveEchoChannelAsync)
+    //   V 키(눌림) → Push-to-Talk 송신 ON      (SetTransmissionAsync(true))
+    //   V 키(뗌)   → Push-to-Talk 송신 OFF     (SetTransmissionAsync(false))
     // 실제 게임에서는 UI 버튼으로 대체하지만, 검증 단계는 키가 가장 빠르다.
     // ---------------------------------------------------------------------
     async void Update()
@@ -77,6 +82,10 @@ public class VivoxManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.M)) LogInputDevices();
         if (Input.GetKeyDown(KeyCode.E)) await JoinEchoChannelAsync();
         if (Input.GetKeyDown(KeyCode.X)) await LeaveEchoChannelAsync();
+
+        // L3 — V 키를 누른 순간 송신 시작, 떼는 순간 송신 차단
+        if (Input.GetKeyDown(pushToTalkKey)) await SetTransmissionAsync(true);
+        if (Input.GetKeyUp(pushToTalkKey))   await SetTransmissionAsync(false);
     }
 
     // =====================================================================
@@ -147,7 +156,10 @@ public class VivoxManager : MonoBehaviour
             defaultChannelName,
             ChatCapability.AudioOnly);
 
-        Debug.Log($"[Vivox] Joined channel: {defaultChannelName}");
+        // L3 — 채널 입장 직후 송신을 차단해 V 키 PTT 기본 상태로 둔다
+        await SetTransmissionAsync(false);
+
+        Debug.Log($"[Vivox] Joined channel: {defaultChannelName} (PTT 대기)");
     }
 
     // =====================================================================
@@ -185,7 +197,10 @@ public class VivoxManager : MonoBehaviour
             echoChannelName,
             ChatCapability.AudioOnly);
 
-        Debug.Log($"[Vivox] Echo channel joined: {echoChannelName}");
+        // L3 — Echo 채널에서도 동일하게 PTT 적용. V 눌러야 자기 목소리가 들린다.
+        await SetTransmissionAsync(false);
+
+        Debug.Log($"[Vivox] Echo channel joined: {echoChannelName} (PTT 대기)");
     }
 
     // ---------------------------------------------------------------------
@@ -197,5 +212,29 @@ public class VivoxManager : MonoBehaviour
     {
         await VivoxService.Instance.LeaveChannelAsync(echoChannelName);
         Debug.Log($"[Vivox] Echo channel left: {echoChannelName}");
+    }
+
+    // =====================================================================
+    // 5) Push-to-Talk (L3 — V 키)
+    // =====================================================================
+
+    // ---------------------------------------------------------------------
+    // SetTransmissionAsync — 마이크 송신 ON/OFF 전환.
+    //
+    // Vivox 는 채널에 입장했다고 해서 곧바로 마이크 음성이 송출되지 않는다.
+    // "지금 어떤 채널로 보낼지" 를 SetChannelTransmissionModeAsync 로 정한다:
+    //
+    //   TransmissionMode.None   → 어떤 채널에도 송신하지 않음 (마이크 차단)
+    //   TransmissionMode.Single → 지정한 단일 채널 한 곳에만 송신 (channelName 인자 필수)
+    //   TransmissionMode.All    → 입장해 있는 모든 채널에 송신
+    //
+    // Push-to-Talk 는 "키 누름 = 전체 송신 / 키 뗌 = 송신 차단" 두 상태만 쓰면 되므로
+    // None ↔ All 만 사용한다.
+    // ---------------------------------------------------------------------
+    public async Task SetTransmissionAsync(bool transmitting)
+    {
+        var mode = transmitting ? TransmissionMode.All : TransmissionMode.None;
+        await VivoxService.Instance.SetChannelTransmissionModeAsync(mode);
+        Debug.Log($"[Vivox] Transmission: {mode}");
     }
 }
