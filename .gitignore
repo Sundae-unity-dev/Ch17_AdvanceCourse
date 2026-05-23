@@ -104,3 +104,9 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Asset Store packages (학생이 직접 다운로드 — Standard Unity Asset Store EULA)
+/Assets/Stylized_Astronaut/
+/Assets/Stylized_Astronaut.meta
+/Assets/Cartoon UI/
+/Assets/Cartoon UI.meta
