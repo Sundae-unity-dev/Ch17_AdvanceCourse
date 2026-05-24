@@ -38,6 +38,18 @@ public class VivoxManager : MonoBehaviour
     [SerializeField] KeyCode pushToTalkKey = KeyCode.V;    // L3 — Push-to-Talk 키
 
     // ---------------------------------------------------------------------
+    // L5 — 자동 접속 옵션. 게임 시작 시 학생이 L/J 키를 누르지 않아도
+    // 서버 로그인 + 기본 채널 입장이 자동으로 진행되도록 한다.
+    //   autoLogin       : InitializeAsync 직후 LoginAsync 까지 자동 실행
+    //   autoJoinDefault : LoginAsync 직후 JoinDefaultChannelAsync 까지 자동 실행
+    // 두 옵션 모두 켜져 있으면 Play 누르고 몇 초 안에 채팅·음성 준비 완료.
+    // 디버그 키 (L/J) 는 그대로 작동하지만, 이미 로그인/입장 상태라면 skip.
+    // ---------------------------------------------------------------------
+    [Header("Auto Connect (L5)")]
+    [SerializeField] bool autoLogin = true;
+    [SerializeField] bool autoJoinDefault = true;
+
+    // ---------------------------------------------------------------------
     // L4 — Spatial Audio (3D 위치 기반 음성)
     //   spatialChannelName       : 3D 채널 이름. 같은 이름끼리 음성이 거리·방향에
     //                              따라 자연스럽게 변하면서 들린다.
@@ -79,16 +91,25 @@ public class VivoxManager : MonoBehaviour
 
     // ---------------------------------------------------------------------
     // Start — 첫 프레임 직전에 호출. async 로 선언해서 초기화 비동기 호출.
+    // L5 부터는 autoLogin / autoJoinDefault 옵션에 따라 로그인·채널 입장까지
+    // Start 에서 자동으로 끝낸다. 학생은 메시지·음성만 즉시 사용 가능.
     // ---------------------------------------------------------------------
     async void Start()
     {
         await InitializeAsync();
+        if (autoLogin) await LoginAsync();
+        if (autoLogin && autoJoinDefault) await JoinDefaultChannelAsync();
     }
 
     // ---------------------------------------------------------------------
     // Update — 매 프레임 호출되는 Unity 콜백. 검증용 디버그 키 바인딩.
-    //   L 키       → Vivox 로그인              (LoginAsync)
-    //   J 키       → 기본 그룹 채널 입장        (JoinDefaultChannelAsync)
+    //
+    // L5 부터는 autoLogin/autoJoinDefault 가 켜져 있으면 L·J 는 사실상
+    // 자동으로 처리되므로 평소엔 누를 일이 없다. 다만 키를 눌러도 멱등하게
+    // 동작하도록 메서드 안에서 이미 처리된 경우 skip 한다.
+    //
+    //   L 키       → Vivox 로그인              (자동 옵션 OFF 시 검증용)
+    //   J 키       → 기본 채널 입장             (자동 옵션 OFF 시 검증용)
     //   M 키       → 인식된 마이크 목록 출력    (LogInputDevices)
     //   E 키       → Echo 채널 입장 (청각 검증) (JoinEchoChannelAsync)
     //   X 키       → Echo 채널 나가기           (LeaveEchoChannelAsync)
@@ -96,7 +117,7 @@ public class VivoxManager : MonoBehaviour
     //   V 키(뗌)   → Push-to-Talk 송신 OFF     (SetTransmissionAsync(false))
     //   P 키       → Spatial (3D) 채널 입장    (JoinSpatialChannelAsync)
     //   Q 키       → Spatial (3D) 채널 나가기  (LeaveSpatialChannelAsync)
-    // 실제 게임에서는 UI 버튼으로 대체하지만, 검증 단계는 키가 가장 빠르다.
+    // 실제 게임에서는 UI 버튼·이벤트로 대체하되, V (PTT) 는 키로 두는 편이 자연스럽다.
     // ---------------------------------------------------------------------
     async void Update()
     {
@@ -154,9 +175,16 @@ public class VivoxManager : MonoBehaviour
     // ---------------------------------------------------------------------
     // LoginAsync — Vivox 에 표시 이름(DisplayName) 으로 로그인
     // 같은 PC 에서 여러 번 테스트해도 충돌이 없도록 4자리 난수를 붙인다.
+    // 이미 로그인된 상태에서 다시 호출되면 (예: 자동 + L 키 중복) skip.
     // ---------------------------------------------------------------------
     public async Task LoginAsync()
     {
+        if (VivoxService.Instance != null && VivoxService.Instance.IsLoggedIn)
+        {
+            Debug.Log("[Vivox] 이미 로그인된 상태 — LoginAsync skip");
+            return;
+        }
+
         var options = new LoginOptions
         {
             // 예: "Astronaut_3742" 처럼 매번 다른 이름으로 로그인
@@ -169,23 +197,40 @@ public class VivoxManager : MonoBehaviour
     }
 
     // ---------------------------------------------------------------------
-    // JoinDefaultChannelAsync — Inspector 에 설정한 채널에 음성 전용으로 입장
+    // JoinDefaultChannelAsync — Inspector 에 설정한 채널에 음성·텍스트 동시 입장
     // ChatCapability:
     //   AudioOnly     → 음성만
     //   TextOnly      → 텍스트만
-    //   TextAndAudio  → 음성 + 텍스트
+    //   TextAndAudio  → 음성 + 텍스트 (L5 채팅 위해 이쪽으로 변경)
+    //
+    // L5 부터는 같은 Lobby 채널에서 음성도, 텍스트도 흐른다.
+    // ChatManager 는 VivoxService.Instance.ChannelMessageReceived 이벤트만
+    // 구독하고, 송수신은 SendChannelTextMessageAsync 한 줄로 처리한다.
     // ---------------------------------------------------------------------
     public async Task JoinDefaultChannelAsync()
     {
+        // 이미 입장한 채널이라면 다시 시도하지 않고 skip
+        var active = VivoxService.Instance != null ? VivoxService.Instance.ActiveChannels : null;
+        if (active != null && active.ContainsKey(defaultChannelName))
+        {
+            Debug.Log($"[Vivox] 이미 {defaultChannelName} 입장 상태 — JoinDefault skip");
+            return;
+        }
+
         await VivoxService.Instance.JoinGroupChannelAsync(
             defaultChannelName,
-            ChatCapability.AudioOnly);
+            ChatCapability.TextAndAudio);
 
         // L3 — 채널 입장 직후 송신을 차단해 V 키 PTT 기본 상태로 둔다
         await SetTransmissionAsync(false);
 
-        Debug.Log($"[Vivox] Joined channel: {defaultChannelName} (PTT 대기)");
+        Debug.Log($"[Vivox] Joined channel: {defaultChannelName} (Text+Audio, PTT 대기)");
     }
+
+    // ---------------------------------------------------------------------
+    // DefaultChannelName — ChatManager 가 어느 채널로 보낼지 알기 위한 노출.
+    // ---------------------------------------------------------------------
+    public string DefaultChannelName => defaultChannelName;
 
     // =====================================================================
     // 3) 마이크 인식 확인 (Step 7)
